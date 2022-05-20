@@ -1,21 +1,26 @@
 #include "JMCommand.h"
+//#include "JMWifi.h"
 
+// JMWifi *wifi = new JMWifi();
 JMCommand *cmd = new JMCommand();
 
 void setup()
 {
-
-  cmd->setup();
-  Serial.begin(9600);
+  Serial.begin(115200);
   delay(1000);
+
+  // wifi->setup();
+  cmd->setup();
+
   // cmd->doCommand(JMCommand::CMD_BOX_TO_LG);
 }
 
 void loop()
 {
-  // delay(1000);
-  // wifiTest();
-  // doit();
+  delay(3000);
+  // wifi->sendHttp("/mshome-ent/post_tes.php", "aaa");
+  //  wifiTest();
+  //  doit();
 }
 
 void doit()
@@ -23,10 +28,4 @@ void doit()
 
   // cmd
   delay(5000);
-}
-
-void wifiTest()
-{
-  Serial.println("tes");
-  delay(10000);
 }
