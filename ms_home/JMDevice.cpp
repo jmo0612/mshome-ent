@@ -1,10 +1,13 @@
 #include "JMDevice.h"
 #include "JMRelay.h"
 #include "JMIr.h"
+#include "JMCommand.h"
 
-JMDevice::JMDevice(char *devName, JMRelay &relay, JMIr &ir, uint32_t irRun, uint32_t irShutDown, int acOnDelay, int acOffDelay, int runDelay, int shutDownDelay)
+JMDevice::JMDevice(int id, char *devName, JMCommand &commander, JMRelay &relay, JMIr &ir, uint32_t irRun, uint32_t irShutDown, int acOnDelay, int acOffDelay, int runDelay, int shutDownDelay)
 {
+    this->id = id;
     this->devName = devName;
+    this->commander = &commander;
     this->relay = &relay;
     this->ir = &ir;
     this->irRun = irRun;
@@ -30,6 +33,7 @@ bool JMDevice::acOn()
         delay(this->runDelay);
         this->mode = DEV_MODE_RUNNING;
     }
+    this->commander->updateStats(*this);
     return true;
 };
 bool JMDevice::acOff()
@@ -55,6 +59,7 @@ bool JMDevice::acOff()
         this->relay->turnOff();
         delay(this->acOffDelay);
         this->mode = DEV_MODE_DEAD;
+        this->commander->updateStats(*this);
         return true;
     }
 };
@@ -73,6 +78,7 @@ bool JMDevice::run()
             }
             else
             {
+                this->commander->updateStats(*this);
                 return true;
             }
         }
@@ -90,6 +96,7 @@ bool JMDevice::run()
             delay(this->runDelay);
         }
         this->mode = DEV_MODE_RUNNING;
+        this->commander->updateStats(*this);
         return true;
     }
 };
@@ -104,11 +111,20 @@ bool JMDevice::shutDown()
         delay(this->shutDownDelay);
     }
     this->mode = DEV_MODE_STANDBY;
+    this->commander->updateStats(*this);
     return true;
+};
+int JMDevice::getId()
+{
+    return this->id;
 };
 int JMDevice::getMode()
 {
     return this->mode;
+};
+void JMDevice::setShutDownFailed(bool failed)
+{
+    this->shutDownFailed = failed;
 };
 void JMDevice::calibrate()
 {

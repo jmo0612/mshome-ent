@@ -3,12 +3,11 @@
 
 #include "CallbackFunction.h"
 
-class JMSerialSlave;
 class JMMessenger
 {
 private:
     String id;
-    JMSerialSlave *serial;
+    String msg;
     CallbackFunction todo;
     JMMessenger *next = NULL;
     JMMessenger *prev = NULL;
@@ -16,13 +15,15 @@ private:
     JMMessenger *getFirst();
     JMMessenger *getLast();
     void deleteMe();
+    static int count();
 
 public:
-    JMMessenger(const String id, JMSerialSlave *serialSlave, CallbackFunction todo);
-    void send(String msg);
+    JMMessenger(const String id, const String msg, CallbackFunction todo);
+    ~JMMessenger();
     void doAction(String msg);
 
-    static JMMessenger *add(const String idTemplate, JMSerialSlave *serialSlave, CallbackFunction todo);
+    static JMMessenger *add(const String idTemplate, const String msg, CallbackFunction todo);
     static JMMessenger *find(const String id);
+    static String getMessage();
 };
 #endif

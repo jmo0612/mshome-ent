@@ -3,11 +3,14 @@
 #include "Arduino.h"
 class JMRelay;
 class JMIr;
+class JMCommand;
 class JMDevice
 {
 private:
+    int id;
     char *devName;
     int mode;
+    JMCommand *commander;
     JMRelay *relay;
     JMIr *ir;
     bool shutDownFailed = false;
@@ -25,12 +28,14 @@ public:
     static const int DEV_MODE_STANDBY = 1;
     static const int DEV_MODE_RUNNING = 2;
 
-    JMDevice(char *devName, JMRelay &relay, JMIr &ir, uint32_t irRun, uint32_t irShutDown, int acOnDelay, int acOffDelay, int runDelay, int shutDownDelay);
+    JMDevice(int id, char *devName, JMCommand &commander, JMRelay &relay, JMIr &ir, uint32_t irRun, uint32_t irShutDown, int acOnDelay, int acOffDelay, int runDelay, int shutDownDelay);
     bool acOn();
     bool acOff();
     bool run();
     bool shutDown();
+    int getId();
     int getMode();
     void calibrate();
+    void setShutDownFailed(bool failed);
 };
 #endif

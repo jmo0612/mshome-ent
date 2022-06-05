@@ -1,6 +1,7 @@
 #ifndef JMCommand_h
 #define JMCommand_h
 #include "Arduino.h"
+#include "List.hpp"
 //#include "JMRelay8.h"
 //#include "JMIr.h"
 //#include "JMDevice.h"
@@ -12,6 +13,9 @@ class JMIr;
 class JMCommand
 {
 private:
+    bool loaded = false;
+    char *stats = "00000000000000";
+    List<JMDevice *> *devs;
     JMDevice *homeCinemaCurrent = NULL;
     JMDevice *bedroomCurrent = NULL;
 
@@ -36,6 +40,11 @@ private:
     JMDevice *serverNAS;
     JMDevice *hddDock;
     JMDevice *speaker;
+
+    void updateStats(char *stats);
+    const char *extractTaskType(const char *msg);
+    char *extractTaskMsg(const char *msg, const char *taskType);
+    void specialInit();
 
     uint32_t getMatrixCode(int cmd);
 
@@ -103,5 +112,11 @@ public:
     JMCommand();
     void setup();
     void doCommand(int cmd);
+    void doInetCommand(const char *cmd);
+    void processTask(const char *msg);
+    char *getStats();
+    void updateStats(JMDevice &dev);
+    bool isLoaded();
+    const char *getStatsPacked();
 };
 #endif

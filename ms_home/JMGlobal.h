@@ -6,7 +6,8 @@ class JMGlobal
 private:
 public:
     static const unsigned long baudrate = 115200;
-    static const unsigned long serialTimeOut = 3000;
+    static const int maxStack = 3;
+    static const unsigned int wireMaxChar = 20;
 };
 
 #endif
