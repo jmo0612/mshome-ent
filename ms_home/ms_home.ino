@@ -2,27 +2,35 @@
 //#include "JMWifi.h"
 #include "JMGlobal.h"
 #include "JMFunctions.h"
-#include "JMMessenger.h"
 #include "JMWifiWire.h"
-#include <ArduinoJson.h>
+#include "JMData.h"
+#include "JMMsgs.h"
+#include "JMIr.h"
 
 // JMWifi *wifi = new JMWifi();
+JMIr *ir = new JMIr();
 JMCommand *cmd = new JMCommand();
+JMData *devData = new JMData();
+JMMsgs *msgs = new JMMsgs();
+long long jimi = 1;
 
 JMWifiWire *wifiWire = new JMWifiWire();
 bool networkConnected = false;
 bool goodToGo = false;
 void setup()
 {
-  cmd->setup();
-  wifiWire->setAsSlave(8, receiveEvent, requestEvent);
   Serial.begin(JMGlobal::baudrate);
-  delay(1000);
-  Serial.println(F("RESET"));
+
+  wifiWire->setAsSlave(8, receiveEvent, requestEvent);
+  ir->setup();
+  cmd->setup(ir, devData);
+  // Serial.println(F("RESET"));
+  // const char *tmp = devData->cek();
+  // Serial.println(tmp);
 
   // wifi->setup();
 
-  // cmd->doCommand(JMCommand::CMD_BOX_TO_LG);
+  // cmd->doCommand(JMGlobal::DO_CMD_BOX_TO_LG);
   /*List<List<char> *> *kkk = new List<List<char> *>();
   List<char> *ddd = new List<char>();
   char ccc = 'a';
@@ -37,40 +45,29 @@ void setup()
 bool go = true;
 void loop()
 {
-  if (goodToGo)
-  {
-    // loop
-    if (go)
-    {
-      go = false;
-      cmd->doCommand(JMCommand::CMD_BOX_TO_LG);
-    }
-    // Serial.println("Looping");
-    // delay(1000);
-  }
-  else
-  {
-    if (cmd->isLoaded() && networkConnected)
-      goodToGo = true;
-  }
-  // char *data = "/mshome-ent/index.php";
-  //  JMMessenger::add("jimi", data, tes);
-  // delay(100);
-
-  // bridge->checkSerial();
+  // Serial.println("tes");
+  ir->receiveIr();
+  // delay(1000);
+  /*uint32_t ir = irRec->decode();
+  if (ir != 0)
+    Serial.println(ir);*/
   /*
-    if (ardSerial.available())
+    if (goodToGo)
     {
-      // Serial.println(ardSerial.readString());
-      //  char tmp = ardSerial.read();
-      //  Serial.print(tmp);
-    }*/
-  // Serial.println("\n");
-
-  // delay(3000);
-  //  wifi->sendHttp("/mshome-ent/post_tes.php", "aaa");
-  //   wifiTest();
-  //   doit();
+      // loop
+      if (go)
+      {
+        go = false;
+        cmd->doCommand(JMGlobal::DO_CMD_BOX_TO_LG);
+        processMsg();
+      }
+    }
+    else
+    {
+      if (cmd->isLoaded() && networkConnected)
+        goodToGo = true;
+    }
+    */
 }
 
 void doit()
@@ -85,55 +82,96 @@ void tes(String a)
   Serial.println(a);
 }
 
-void processCall(String command)
-{
-  DynamicJsonDocument doc(256);
-  deserializeJson(doc, command);
-  // JsonObject& root= jsonBuffer.parseObject(command);
-
-  int id = doc["id"];
-  Serial.println(id);
-  const char *nama = doc["nama"];
-  Serial.println(nama);
-  // tes();
-}
-
 void receiveEvent(int howMany)
 {
-  // Serial.println(F("received"));
-  char data[32] = {};
+  char data[8] = {};
   int i = 0;
   while (wifiWire->getWire()->available())
   {
     char c = wifiWire->getWire()->read();
-    // Serial.println(int(c));
     data[i++] = c;
   }
-  // Serial.println(data);
-  cmd->processTask(data);
-  // delete data;
+  // cmd->processTask(data);
+  msgs->queueMsg(msgInt64(data));
 }
 
 void requestEvent()
 {
   networkConnected = true;
-  if (!cmd->isLoaded())
+  uint64_t data = devData->devDataToInt64();
+  wifiWire->sendMessage2(msgToBytes(data));
+}
+
+byte *msgToBytes(uint64_t msg)
+{
+  Serial.println("jimot");
+  uint64_t tmp = msg;
+  byte s0 = tmp >> 56;
+  Serial.println(s0);
+  tmp = msg << 8;
+  byte s1 = tmp >> 56;
+  Serial.println(s1);
+  tmp = msg << 16;
+  byte s2 = tmp >> 56;
+  Serial.println(s2);
+  tmp = msg << 24;
+  byte s3 = tmp >> 56;
+  Serial.println(s3);
+  tmp = msg << 32;
+  byte s4 = tmp >> 56;
+  Serial.println(s4);
+  tmp = msg << 40;
+  byte s5 = tmp >> 56;
+  Serial.println(s5);
+  tmp = msg << 48;
+  byte s6 = tmp >> 56;
+  Serial.println(s6);
+  tmp = msg << 56;
+  byte s7 = tmp >> 56;
+  Serial.println(s7);
+  static byte sData[8] = {s0, s1, s2, s3, s4, s5, s6, s7};
+  return sData;
+}
+
+uint64_t msgInt64(char *msg)
+{
+  uint64_t d0 = msg[0];
+  d0 = d0 << 56;
+  uint64_t d1 = msg[1];
+  d1 = d1 << 48;
+  uint64_t d2 = msg[2];
+  d2 = d2 << 40;
+  uint64_t d3 = msg[3];
+  d3 = d3 << 32;
+  uint64_t d4 = msg[4];
+  d4 = d4 << 24;
+  uint64_t d5 = msg[5];
+  d5 = d5 << 16;
+  uint64_t d6 = msg[6];
+  d6 = d6 << 8;
+  uint64_t d7 = msg[7];
+  return d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7;
+}
+
+/*void processMsg()
+{
+  uint64_t msg = msgs->dequeueMsg();
+  if (msg == 0)
+    return;
+  uint64_t msgType = msg >> 56;
+  uint64_t tmp = msg << 8;
+  uint64_t data = tmp >> 8;
+  if (msgType == JMGlobal::PACKET_MSG_UPDATE_DEVICES_DATA)
   {
-    wifiWire->sendMessage("|INIT0|");
+    devData->updateDevData(data);
+  }
+  else if (msgType == JMGlobal::PACKET_MSG_REQUEST_DEVICES_DATA)
+  {
+    uint64_t data = devData->devDataToInt64(JMGlobal::PACKET_MSG_UPDATE_DEVICES_DATA);
+    // wifiWire->sendMessage(msgStr(data));
   }
   else
   {
-    String msg = "|UPD";
-    msg += cmd->getStats();
-    msg += "|";
-    char m[msg.length()];
-    for (int i = 0; i < msg.length(); i++)
-    {
-      m[i] = char(msg[i]);
-    }
-    // Serial.println(m);
-    wifiWire->sendMessage(m);
+    cmd->doCommand(data);
   }
-  // Serial.println("requested");
-  // wifiWire->sendMessage("D200000000000000000000000000002D");
-}
+}*/

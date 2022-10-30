@@ -17,27 +17,17 @@ void JMRelay8::setup()
         this->pins[i]->setup();
     }
 
-    Serial.print("Init pcf8574 @");
-    Serial.print(this->address);
-    if (this->pcf->begin())
-    {
-        // this->ready = true;
-        // delay(1000);
-        Serial.print("-OK   ");
-    }
-    else
-    {
-        Serial.print("-KO   ");
-    }
-    Serial.print(": ...");
-    // this->pcf->begin();
-    /*while (!aa.begin())
+    // Serial.print("Init pcf8574 @");
+    // Serial.print(this->address);
+    // Serial.print(": ");
+    while (!this->pcf->begin())
     {
         // wait
+        // Serial.print(".");
         // delay(1000);
-        // millis();
-    }*/
-    Serial.print("DONE\n");
+    }
+    // Serial.print("OK   ");
+    // Serial.print("DONE\n");
 };
 
 PCF8574 *JMRelay8::getPcf()

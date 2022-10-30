@@ -34,6 +34,15 @@ void JMWifiWire::sendMessage(const char *msg, const int slaveAddress)
     if (this->isMaster)
         Serial.println(this->_wire->endTransmission());
 };
+void JMWifiWire::sendMessage2(const byte *msg, const int slaveAddress)
+{
+    // Serial.println(msg[0]);
+    if (this->isMaster)
+        this->_wire->beginTransmission(slaveAddress);
+    this->_wire->write(msg, 8);
+    if (this->isMaster)
+        this->_wire->endTransmission();
+};
 
 TwoWire *JMWifiWire::getWire()
 {
