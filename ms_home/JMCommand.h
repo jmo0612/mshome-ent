@@ -18,7 +18,7 @@ private:
     JMData *devData;
     // bool loaded = false;
     //  char *stats = "00000000000000";
-    List<JMDevice *> *devs;
+    // List<JMDevice *> *devs;
     JMDevice *homeCinemaCurrent = NULL;
     JMDevice *bedroomCurrent = NULL;
 

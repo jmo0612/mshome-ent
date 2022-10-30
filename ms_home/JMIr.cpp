@@ -38,43 +38,43 @@ void JMIr::processIr(uint32_t code)
 {
     if (code == JMIr::IR_A1_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_LG);
         Serial.println(F("LG_BOX"));
+        this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_LG);
     }
     else if (code == JMIr::IR_A2_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_LG);
         Serial.println(F("LG_PS"));
+        this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_LG);
     }
     else if (code == JMIr::IR_A3_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_LG);
         Serial.println(F("LG_INDI"));
+        this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_LG);
     }
     else if (code == JMIr::IR_A4_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_LG);
         Serial.println(F("LG_ELSE"));
+        this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_LG);
     }
     else if (code == JMIr::IR_B1_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_AKARI);
         Serial.println(F("AK_BOX"));
+        this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_AKARI);
     }
     else if (code == JMIr::IR_B2_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_AKARI);
         Serial.println(F("AK_PS"));
+        this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_AKARI);
     }
     else if (code == JMIr::IR_B3_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_AKARI);
         Serial.println(F("AK_INDI"));
+        this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_AKARI);
     }
     else if (code == JMIr::IR_B4_CODE)
     {
-        this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_AKARI);
         Serial.println(F("AK_ELSE"));
+        this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_AKARI);
     }
 };
 

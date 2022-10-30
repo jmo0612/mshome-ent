@@ -7,9 +7,8 @@
 #include "JMData.h"
 
 char *statTmp;
-JMCommand::JMCommand()
-{
-    this->devs = new List<JMDevice *>();
+JMCommand::JMCommand(){
+    // this->devs = new List<JMDevice *>();
 };
 void JMCommand::setup(JMIr *ir, JMData *devData)
 {
@@ -198,11 +197,16 @@ void JMCommand::cmdBoxToLg()
     }
     else
     {
+        this - remoteA2->run();
+        // this->remoteA1->run(); // Remote A/LG to Box
+        /*this->remoteA2->run();
+        this->remoteA3->run();
+        this->remoteA4->run();
         this->hdmiMatrix->run();
         this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_LG));
         this->hdmiAmpLG->run();
         this->displayLG->run();
-        this->playerBox->run();
+        this->playerBox->run();*/
         this->homeCinemaCurrent = this->playerBox;
     }
 };
@@ -366,16 +370,29 @@ void JMCommand::initSetup()
     this->setHdmiAmpPS();
 
     this->setHdmiMatrix();
+    this->setRemoteA2();
+    // BATAS MEMORI
 
-    this->setPlayerBox();
-    this->setPlayerIndi();
     this->setPlayerPS();
+    this->setPlayerBox();
+
+    this->setPlayerIndi();
+    // this->setPlayerPS();
 
     this->setServerEvercossBat();
     this->setServerEvercossCharger();
     this->setServerNAS();
     this->setHddDock();
     this->setSpeaker();
+
+    // this->setRemoteA1();
+    this->setRemoteA2();
+    this->setRemoteA3();
+    this->setRemoteA4();
+    this->setRemoteB1();
+    this->setRemoteB2();
+    this->setRemoteB3();
+    this->setRemoteB4();
 };
 
 void JMCommand::setRelay8()
@@ -398,7 +415,7 @@ void JMCommand::setDisplayLG()
                                    2000,
                                    5000,
                                    5000);
-    this->devs->add(this->displayLG);
+    // this->devs->add(this->displayLG);
 };
 void JMCommand::setDisplayAkari()
 {
@@ -412,7 +429,7 @@ void JMCommand::setDisplayAkari()
                                       2000,
                                       5000,
                                       5000);
-    this->devs->add(this->displayAkari);
+    // this->devs->add(this->displayAkari);
 };
 
 void JMCommand::setHdmiAmpLG()
@@ -427,7 +444,7 @@ void JMCommand::setHdmiAmpLG()
                                    2000,
                                    0,
                                    0);
-    this->devs->add(this->hdmiAmpLG);
+    // this->devs->add(this->hdmiAmpLG);
 };
 void JMCommand::setHdmiAmpAkari()
 {
@@ -441,7 +458,7 @@ void JMCommand::setHdmiAmpAkari()
                                       2000,
                                       0,
                                       0);
-    this->devs->add(this->hdmiAmpAkari);
+    // this->devs->add(this->hdmiAmpAkari);
 };
 void JMCommand::setHdmiAmpPS()
 {
@@ -455,7 +472,7 @@ void JMCommand::setHdmiAmpPS()
                                    2000,
                                    0,
                                    0);
-    this->devs->add(this->hdmiAmpPS);
+    // this->devs->add(this->hdmiAmpPS);
 };
 
 void JMCommand::setHdmiMatrix()
@@ -470,7 +487,7 @@ void JMCommand::setHdmiMatrix()
                                     2000,
                                     5000,
                                     5000);
-    this->devs->add(this->hdmiMatrix);
+    // this->devs->add(this->hdmiMatrix);
 };
 
 void JMCommand::setPlayerBox()
@@ -485,7 +502,7 @@ void JMCommand::setPlayerBox()
                                    2000,
                                    5000,
                                    5000);
-    this->devs->add(this->playerBox);
+    // this->devs->add(this->playerBox);
 };
 void JMCommand::setPlayerIndi()
 {
@@ -499,11 +516,10 @@ void JMCommand::setPlayerIndi()
                                     2000,
                                     5000,
                                     5000);
-    this->devs->add(this->playerIndi);
+    // this->devs->add(this->playerIndi);
 };
 void JMCommand::setPlayerPS()
 {
-    return;
     this->playerPS = new JMDevice(JMGlobal::DEV_PLAYER_PS, "PS3",
                                   *this,
                                   *this->relay8[1]->getRelay(0),
@@ -514,12 +530,11 @@ void JMCommand::setPlayerPS()
                                   2000,
                                   30000,
                                   120000);
-    this->devs->add(this->playerPS);
+    // this->devs->add(this->playerPS);
 };
 
 void JMCommand::setServerEvercossBat()
 {
-    return;
     this->serverEvercossBat = new JMDevice(JMGlobal::DEV_SERVER_EVERCOSS_BAT, "Evercoss Power",
                                            *this,
                                            *this->relay8[1]->getRelay(1),
@@ -530,11 +545,10 @@ void JMCommand::setServerEvercossBat()
                                            2000,
                                            5000,
                                            60000);
-    this->devs->add(this->serverEvercossBat);
+    // this->devs->add(this->serverEvercossBat);
 };
 void JMCommand::setServerEvercossCharger()
 {
-    return;
     this->serverEvercossCharger = new JMDevice(JMGlobal::DEV_SERVER_EVERCOSS_CHARGER, "Evercoss Charger",
                                                *this,
                                                *this->relay8[1]->getRelay(2),
@@ -545,11 +559,10 @@ void JMCommand::setServerEvercossCharger()
                                                2000,
                                                5000,
                                                5000);
-    this->devs->add(this->serverEvercossCharger);
+    // this->devs->add(this->serverEvercossCharger);
 };
 void JMCommand::setServerNAS()
 {
-    return;
     this->serverNAS = new JMDevice(JMGlobal::DEV_SERVER_NAS, "NAS",
                                    *this,
                                    *this->relay8[1]->getRelay(3),
@@ -560,11 +573,10 @@ void JMCommand::setServerNAS()
                                    2000,
                                    5000,
                                    5000);
-    this->devs->add(this->serverNAS);
+    // this->devs->add(this->serverNAS);
 };
 void JMCommand::setHddDock()
 {
-    return;
     this->hddDock = new JMDevice(JMGlobal::DEV_HDD_DOCK, "HDD Dock",
                                  *this,
                                  *this->relay8[1]->getRelay(4),
@@ -575,11 +587,10 @@ void JMCommand::setHddDock()
                                  2000,
                                  5000,
                                  5000);
-    this->devs->add(this->hddDock);
+    // this->devs->add(this->hddDock);
 };
 void JMCommand::setSpeaker()
 {
-    return;
     this->speaker = new JMDevice(JMGlobal::DEV_SPEAKER, "Speaker",
                                  *this,
                                  *this->relay8[1]->getRelay(5),
@@ -590,125 +601,117 @@ void JMCommand::setSpeaker()
                                  2000,
                                  5000,
                                  5000);
-    this->devs->add(this->speaker);
+    // this->devs->add(this->speaker);
 };
 void JMCommand::setRemoteA1()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_A1, "RemoteA1",
-                                 *this,
-                                 *this->relay8[2]->getRelay(0),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteA1);
+    this->remoteA1 = new JMDevice(JMGlobal::DEV_REMOTE_A1, "RemoteA1",
+                                  *this,
+                                  *this->relay8[2]->getRelay(0),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteA1);
 };
 void JMCommand::setRemoteA2()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_A2, "RemoteA2",
-                                 *this,
-                                 *this->relay8[2]->getRelay(1),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteA2);
+    this->remoteA2 = new JMDevice(JMGlobal::DEV_REMOTE_A2, "RemoteA2",
+                                  *this,
+                                  *this->relay8[2]->getRelay(1),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteA2);
 };
 void JMCommand::setRemoteA3()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_A3, "RemoteA3",
-                                 *this,
-                                 *this->relay8[2]->getRelay(2),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteA3);
+    this->remoteA3 = new JMDevice(JMGlobal::DEV_REMOTE_A3, "RemoteA3",
+                                  *this,
+                                  *this->relay8[2]->getRelay(2),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteA3);
 };
 void JMCommand::setRemoteA4()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_A4, "RemoteA4",
-                                 *this,
-                                 *this->relay8[2]->getRelay(3),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteA4);
+    this->remoteA4 = new JMDevice(JMGlobal::DEV_REMOTE_A4, "RemoteA4",
+                                  *this,
+                                  *this->relay8[2]->getRelay(3),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteA4);
 };
 void JMCommand::setRemoteB1()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_B1, "RemoteB1",
-                                 *this,
-                                 *this->relay8[2]->getRelay(4),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteB1);
+    this->remoteB1 = new JMDevice(JMGlobal::DEV_REMOTE_B1, "RemoteB1",
+                                  *this,
+                                  *this->relay8[2]->getRelay(4),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteB1);
 };
 void JMCommand::setRemoteB2()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_B2, "RemoteB2",
-                                 *this,
-                                 *this->relay8[2]->getRelay(5),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteB2);
+    this->remoteB2 = new JMDevice(JMGlobal::DEV_REMOTE_B2, "RemoteB2",
+                                  *this,
+                                  *this->relay8[2]->getRelay(5),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteB2);
 };
 void JMCommand::setRemoteB3()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_B3, "RemoteB3",
-                                 *this,
-                                 *this->relay8[2]->getRelay(6),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteB3);
+    this->remoteB3 = new JMDevice(JMGlobal::DEV_REMOTE_B3, "RemoteB3",
+                                  *this,
+                                  *this->relay8[2]->getRelay(6),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteB3);
 };
 void JMCommand::setRemoteB4()
 {
-    return;
-    this->speaker = new JMDevice(JMGlobal::DEV_REMOTE_B4, "RemoteB4",
-                                 *this,
-                                 *this->relay8[2]->getRelay(7),
-                                 *this->ir,
-                                 0x0,
-                                 0x0,
-                                 0,
-                                 0,
-                                 0,
-                                 0);
-    this->devs->add(this->remoteB4);
+    this->remoteB4 = new JMDevice(JMGlobal::DEV_REMOTE_B4, "RemoteB4",
+                                  *this,
+                                  *this->relay8[2]->getRelay(7),
+                                  *this->ir,
+                                  0x0,
+                                  0x0,
+                                  0,
+                                  0,
+                                  0,
+                                  0);
+    // this->devs->add(this->remoteB4);
 };
