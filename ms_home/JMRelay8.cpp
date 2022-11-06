@@ -11,7 +11,7 @@ JMRelay8::JMRelay8(uint8_t address)
 void JMRelay8::setup()
 {
     this->pcf = new PCF8574(this->address);
-    for (int i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8; i++)
     {
         this->pins[i] = new JMRelay(*this, i);
         this->pins[i]->setup();
@@ -35,7 +35,7 @@ PCF8574 *JMRelay8::getPcf()
     return this->pcf;
 };
 
-void JMRelay8::setPinAsOutput(int pinId)
+void JMRelay8::setPinAsOutput(uint8_t pinId)
 {
     if (pinId < 0 || pinId > 7)
         return;
@@ -43,14 +43,14 @@ void JMRelay8::setPinAsOutput(int pinId)
     this->getPcf()->pinMode(pinId, OUTPUT);
 };
 
-void JMRelay8::setPinAsInput(int pinId)
+void JMRelay8::setPinAsInput(uint8_t pinId)
 {
     if (pinId < 0 || pinId > 7)
         return;
     this->pcf->pinMode(pinId, INPUT);
 };
 
-void JMRelay8::digitalWritePin(int pinId, int value)
+void JMRelay8::digitalWritePin(uint8_t pinId, uint8_t value)
 {
     if (pinId < 0 || pinId > 7)
         return;
@@ -74,7 +74,7 @@ bool JMRelay8::isReady()
 {
     return this->ready;
 };
-JMRelay *JMRelay8::getRelay(int pinId)
+JMRelay *JMRelay8::getRelay(uint8_t pinId)
 {
     if (pinId < 0 || pinId > 7)
         return NULL;

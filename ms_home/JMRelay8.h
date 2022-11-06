@@ -16,11 +16,11 @@ public:
     JMRelay8(uint8_t address);
     void setup();
     PCF8574 *getPcf();
-    void setPinAsOutput(int pinId);
-    void setPinAsInput(int pinId);
-    void digitalWritePin(int pinId, int value);
+    void setPinAsOutput(uint8_t pinId);
+    void setPinAsInput(uint8_t pinId);
+    void digitalWritePin(uint8_t pinId, uint8_t value);
     bool isReady();
-    JMRelay *getRelay(int pinId);
+    JMRelay *getRelay(uint8_t pinId);
 };
 
 #endif

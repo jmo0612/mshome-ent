@@ -8,16 +8,17 @@ class JMWifiWire
 private:
     TwoWire *_wire;
     bool isMaster;
-    int masterSda;
-    int masterScl;
-    int slaveAddress;
+    uint8_t masterSda;
+    uint8_t masterScl;
+    uint8_t slaveAddress;
 
 public:
     JMWifiWire();
-    void setAsMaster(int sda, int scl, void (*receiveEvent)(int));
-    void setAsSlave(int address, void (*receiveEvent)(int), void (*requestEvent)());
-    void sendMessage(const char *msg, const int slaveAddress = 0);
-    void sendMessage2(const byte *msg, const int slaveAddress = 0);
+    void setAsMaster(uint8_t sda, uint8_t scl, void (*receiveEvent)(int));
+    void setAsSlave(uint8_t address, void (*receiveEvent)(int), void (*requestEvent)());
+    void sendMessage2(const byte *msg, const uint8_t slaveAddress = 0);
     TwoWire *getWire();
+    // void sendPackage();
+    // void setPackage(uint64_t package);
 };
 #endif

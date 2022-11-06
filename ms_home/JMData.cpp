@@ -1,12 +1,11 @@
 #include "JMData.h"
 #include "JMGlobal.h"
-#include <math.h>
 
 const uint64_t msgMultiplier = 72057594037927936; // byte-8
 JMData::JMData(){
 
 };
-uint64_t JMData::getPow3s(int ind)
+uint64_t JMData::getPow3s(uint8_t ind)
 {
     if (ind == 0)
     {
@@ -141,9 +140,9 @@ uint64_t JMData::devDataToInt64()
 {
     uint64_t msgInt64 = JMGlobal::PACKET_MSG_DEVICES_DATA * msgMultiplier;
     uint64_t dataVal = 0;
-    int devSize = 32;
+    uint8_t devSize = 32;
 
-    for (int i = 0; i < devSize; i++)
+    for (uint8_t i = 0; i < devSize; i++)
     {
         dataVal += (this->dev[i] * this->getPow3s(i));
     }
@@ -162,22 +161,22 @@ uint64_t JMData::devDataToInt64()
     dataVal += msgInt64;
     return dataVal;
 };*/
-uint64_t JMData::dataToInt64(int msg, uint64_t val)
+uint64_t JMData::dataToInt64(uint8_t msg, uint64_t val)
 {
     return (msg * msgMultiplier) + val;
 };
-int JMData::getMsgFromPacket(uint64_t packet)
+const uint8_t JMData::getMsgFromPacket(uint64_t packet)
 {
     return packet >> 56;
 };
-uint64_t JMData::getValueFromPacket(uint64_t packet)
+const uint64_t JMData::getValueFromPacket(uint64_t packet)
 {
     uint64_t tmp = packet << 8;
     return tmp >> 8;
 };
 void JMData::updateDevData(uint64_t val)
 {
-    int ind = 0;
+    uint8_t ind = 0;
     uint64_t quotient = val;
     int remain;
     do
@@ -187,11 +186,17 @@ void JMData::updateDevData(uint64_t val)
         quotient = quotient / 3;
     } while (quotient > 0);
 };
-void JMData::updateDevice(int id, int val)
+void JMData::updateDevice(uint8_t id, uint8_t val)
 {
     if (id > 31 || id < 0)
         return;
     this->dev[id] = val;
+};
+uint8_t JMData::getDeviceStatus(uint8_t id)
+{
+    if (id > 31 || id < 0)
+        return 3;
+    return this->dev[id];
 };
 /*void JMData::processPacket(uint64_t packet)
 {
@@ -205,8 +210,8 @@ void JMData::updateDevice(int id, int val)
 const char *JMData::cek()
 {
     char ret[96];
-    int a = 0;
-    for (int i = 0; i < 32; i++)
+    uint8_t a = 0;
+    for (uint8_t i = 0; i < 32; i++)
     {
         if (this->dev[i] == 1)
         {
@@ -224,4 +229,62 @@ const char *JMData::cek()
         ret[a++] = ' ';
     }
     return ret;
+};
+
+byte *JMData::msgToBytes(uint64_t msg, bool trace)
+{
+    if (trace)
+        Serial.println("jimot");
+    uint64_t tmp = msg;
+    byte s0 = tmp >> 56;
+    if (trace)
+        Serial.println(s0);
+    tmp = msg << 8;
+    byte s1 = tmp >> 56;
+    if (trace)
+        Serial.println(s1);
+    tmp = msg << 16;
+    byte s2 = tmp >> 56;
+    if (trace)
+        Serial.println(s2);
+    tmp = msg << 24;
+    byte s3 = tmp >> 56;
+    if (trace)
+        Serial.println(s3);
+    tmp = msg << 32;
+    byte s4 = tmp >> 56;
+    if (trace)
+        Serial.println(s4);
+    tmp = msg << 40;
+    byte s5 = tmp >> 56;
+    if (trace)
+        Serial.println(s5);
+    tmp = msg << 48;
+    byte s6 = tmp >> 56;
+    if (trace)
+        Serial.println(s6);
+    tmp = msg << 56;
+    byte s7 = tmp >> 56;
+    if (trace)
+        Serial.println(s7);
+    if (trace)
+        Serial.println("DATA");
+    // static byte sData[8] = {s0, s1, s2, s3, s4, s5, s6, s7};
+    static byte sData[8];
+    sData[0] = s0;
+    sData[1] = s1;
+    sData[2] = s2;
+    sData[3] = s3;
+    sData[4] = s4;
+    sData[5] = s5;
+    sData[6] = s6;
+    sData[7] = s7;
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        if (trace)
+            Serial.println(sData[i]);
+    }
+    if (trace)
+        Serial.println("END");
+    return sData;
 };

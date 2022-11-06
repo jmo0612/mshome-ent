@@ -1,32 +1,34 @@
 #include "JMCommand.h"
 //#include "JMWifi.h"
 #include "JMGlobal.h"
-#include "JMFunctions.h"
 #include "JMWifiWire.h"
 #include "JMData.h"
-#include "JMMsgs.h"
+//#include "JMMsgs.h"
 #include "JMIr.h"
 
 // JMWifi *wifi = new JMWifi();
 JMIr *ir = new JMIr();
 JMCommand *cmd = new JMCommand();
 JMData *devData = new JMData();
-JMMsgs *msgs = new JMMsgs();
-long long jimi = 1;
+// JMMsgs *msgs = new JMMsgs();
+// long long jimi = 1;
 
 JMWifiWire *wifiWire = new JMWifiWire();
 bool networkConnected = false;
 bool goodToGo = false;
+uint64_t package = 0;
 void setup()
 {
   Serial.begin(JMGlobal::baudrate);
 
   wifiWire->setAsSlave(8, receiveEvent, requestEvent);
   ir->setup();
-  cmd->setup(ir, devData);
-  // Serial.println(F("RESET"));
-  // const char *tmp = devData->cek();
-  // Serial.println(tmp);
+  cmd->setup(ir, devData, wifiWire);
+  Serial.println(F("RESET"));
+  // JMData::msgToBytes(devData->devDataToInt64());
+
+  //  const char *tmp = devData->cek();
+  //  Serial.println(tmp);
 
   // wifi->setup();
 
@@ -45,7 +47,13 @@ void setup()
 bool go = true;
 void loop()
 {
+
   // Serial.println("tes");
+  if (package != 0)
+  {
+    cmd->processPackage(package);
+    package = 0;
+  }
   ir->receiveIr();
   // delay(1000);
   /*uint32_t ir = irRec->decode();
@@ -84,56 +92,32 @@ void tes(String a)
 
 void receiveEvent(int howMany)
 {
-  char data[8] = {};
+  // Serial.println(F("receiving"));
+  byte data[howMany];
   int i = 0;
   while (wifiWire->getWire()->available())
   {
-    char c = wifiWire->getWire()->read();
+    byte c = wifiWire->getWire()->read();
     data[i++] = c;
   }
-  // cmd->processTask(data);
-  msgs->queueMsg(msgInt64(data));
+  package = msgInt64(data);
+  // cmd->processPackage(package);
 }
 
 void requestEvent()
 {
+  Serial.println(F("requested"));
   networkConnected = true;
   uint64_t data = devData->devDataToInt64();
-  wifiWire->sendMessage2(msgToBytes(data));
+  byte *msg = JMData::msgToBytes(data);
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    Serial.println(*(msg + i));
+  }
+  wifiWire->sendMessage2(msg);
 }
 
-byte *msgToBytes(uint64_t msg)
-{
-  Serial.println("jimot");
-  uint64_t tmp = msg;
-  byte s0 = tmp >> 56;
-  Serial.println(s0);
-  tmp = msg << 8;
-  byte s1 = tmp >> 56;
-  Serial.println(s1);
-  tmp = msg << 16;
-  byte s2 = tmp >> 56;
-  Serial.println(s2);
-  tmp = msg << 24;
-  byte s3 = tmp >> 56;
-  Serial.println(s3);
-  tmp = msg << 32;
-  byte s4 = tmp >> 56;
-  Serial.println(s4);
-  tmp = msg << 40;
-  byte s5 = tmp >> 56;
-  Serial.println(s5);
-  tmp = msg << 48;
-  byte s6 = tmp >> 56;
-  Serial.println(s6);
-  tmp = msg << 56;
-  byte s7 = tmp >> 56;
-  Serial.println(s7);
-  static byte sData[8] = {s0, s1, s2, s3, s4, s5, s6, s7};
-  return sData;
-}
-
-uint64_t msgInt64(char *msg)
+uint64_t msgInt64(byte *msg)
 {
   uint64_t d0 = msg[0];
   d0 = d0 << 56;

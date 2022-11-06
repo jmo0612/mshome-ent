@@ -7,34 +7,31 @@ class JMCommand;
 class JMDevice
 {
 private:
-    int id;
-    char *devName;
-    int mode;
+    uint8_t id;
+    uint8_t mode;
     JMCommand *commander;
     JMRelay *relay;
     JMIr *ir;
     bool shutDownFailed = false;
 
-    uint32_t irRun = 0x0;
-    uint32_t irShutDown = 0x0;
-
-    int acOnDelay;
-    int acOffDelay;
-    int runDelay;
-    int shutDownDelay;
+    uint16_t acOnDelay;
+    uint16_t acOffDelay;
+    uint16_t runDelay;
+    uint16_t shutDownDelay;
 
 public:
-    static const int DEV_MODE_DEAD = 0;
-    static const int DEV_MODE_STANDBY = 1;
-    static const int DEV_MODE_RUNNING = 2;
+    static const uint8_t DEV_MODE_DEAD = 0;
+    static const uint8_t DEV_MODE_STANDBY = 1;
+    static const uint8_t DEV_MODE_RUNNING = 2;
+    static const uint32_t getIrPower(uint8_t id, bool on = true);
 
-    JMDevice(int id, char *devName, JMCommand &commander, JMRelay &relay, JMIr &ir, uint32_t irRun, uint32_t irShutDown, int acOnDelay, int acOffDelay, int runDelay, int shutDownDelay);
+    JMDevice(uint8_t id, JMCommand &commander, JMRelay &relay, JMIr &ir, uint16_t acOnDelay, uint16_t acOffDelay, uint16_t runDelay, uint16_t shutDownDelay);
     bool acOn();
     bool acOff();
     bool run();
     bool shutDown();
-    int getId();
-    int getMode();
+    uint8_t getId();
+    uint8_t getMode();
     void calibrate();
     void setShutDownFailed(bool failed);
 };

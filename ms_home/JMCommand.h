@@ -1,21 +1,20 @@
 #ifndef JMCommand_h
 #define JMCommand_h
 #include "Arduino.h"
-#include "List.hpp"
-//#include "JMRelay8.h"
-//#include "JMIr.h"
-//#include "JMDevice.h"
 
 class JMRelay8;
 class JMDevice;
 class JMIr;
 class JMData;
+class JMWifiWire;
 
 class JMCommand
 {
 private:
-    int cmdStats[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // COMMAND STATUS
+    uint8_t cmdStats[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // COMMAND STATUS
     JMData *devData;
+    JMWifiWire *wifiWire;
+    bool initialized = false;
     // bool loaded = false;
     //  char *stats = "00000000000000";
     // List<JMDevice *> *devs;
@@ -57,7 +56,7 @@ private:
     // char *extractTaskMsg(char *msg, char *taskType);
     // void specialInit();
 
-    uint32_t getMatrixCode(int cmd);
+    uint32_t getMatrixCode(uint8_t cmd);
 
     // SETUP
     void initSetup();
@@ -110,6 +109,10 @@ private:
     void cmdCalibratePowerSpeaker();
     void cmdCalibratePowerMatrix();
 
+    void setRemote(uint8_t remote, uint8_t display);
+    void firstRun(uint64_t package);
+    void shutDownAll();
+
 public:
     /*static const int CMD_BOX_TO_LG = 0;
     static const int CMD_INDI_TO_LG = 1;
@@ -129,13 +132,16 @@ public:
     static const int CMD_CALIBRATE_POWER_MATRIX = 12;*/
 
     JMCommand();
-    void setup(JMIr *ir, JMData *devData);
-    void doCommand(int cmd);
+    void setup(JMIr *ir, JMData *devData, JMWifiWire *wifiWire);
+    void doCommand(uint8_t cmd);
     void doInetCommand(char *cmd);
     // void processTask(char *msg);
     // char *getStats();
     void updateStats(JMDevice &dev);
     // bool isLoaded();
     // char *getStatsPacked();
+
+    JMDevice *getDeviceById(uint8_t id);
+    void processPackage(const int64_t package);
 };
 #endif

@@ -1,15 +1,15 @@
 #include "JMWifiWire.h"
 #include "JMGlobal.h"
-#include "JMFunctions.h"
+#include "JMData.h"
 
-int sendId = 0;
+uint8_t sendId = 0;
 
 JMWifiWire::JMWifiWire()
 {
     this->_wire = &Wire;
 };
 
-void JMWifiWire::setAsMaster(int sda, int scl, void (*receiveEvent)(int)){
+void JMWifiWire::setAsMaster(uint8_t sda, uint8_t scl, void (*receiveEvent)(int)){
     /*this->isMaster=true;
     //this->_wire->begin(D1,D2);
     this->_wire->begin(sda,scl);
@@ -17,7 +17,7 @@ void JMWifiWire::setAsMaster(int sda, int scl, void (*receiveEvent)(int)){
     this->masterSda=sda;
     this->masterScl=scl;*/
 };
-void JMWifiWire::setAsSlave(int address, void (*receiveEvent)(int), void (*requestEvent)())
+void JMWifiWire::setAsSlave(uint8_t address, void (*receiveEvent)(int), void (*requestEvent)())
 {
     this->isMaster = false;
     this->_wire->begin(address);
@@ -25,16 +25,7 @@ void JMWifiWire::setAsSlave(int address, void (*receiveEvent)(int), void (*reque
     this->_wire->onRequest(requestEvent);
     this->slaveAddress = address;
 };
-void JMWifiWire::sendMessage(const char *msg, const int slaveAddress)
-{
-    // Serial.println(msg[0]);
-    if (this->isMaster)
-        this->_wire->beginTransmission(slaveAddress);
-    Serial.println(this->_wire->write(msg, 32));
-    if (this->isMaster)
-        Serial.println(this->_wire->endTransmission());
-};
-void JMWifiWire::sendMessage2(const byte *msg, const int slaveAddress)
+void JMWifiWire::sendMessage2(const byte *msg, const uint8_t slaveAddress)
 {
     // Serial.println(msg[0]);
     if (this->isMaster)
@@ -48,3 +39,15 @@ TwoWire *JMWifiWire::getWire()
 {
     return this->_wire;
 };
+/*void JMWifiWire::sendPackage()
+{
+    if (this->package != 0)
+    {
+        this->sendMessage2(JMData::msgToBytes(this->package));
+        this->package = 0;
+    }
+};
+void JMWifiWire::setPackage(uint64_t package)
+{
+    this->package = package;
+};*/
