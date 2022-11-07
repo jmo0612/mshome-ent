@@ -17,31 +17,43 @@ void JMCommand::setup(JMIr *ir, JMData *devData, JMWifiWire *wifiWire)
     this->ir->setCommander(*this);
     this->initSetup();
 };
+bool JMCommand::isInitialized()
+{
+    return this->initialized;
+};
 void JMCommand::processPackage(const int64_t package)
 {
     // Serial.println(F("prosesing"));
     uint8_t msg = JMData::getMsgFromPacket(package);
-    // Serial.println(msg);
-    if (msg == JMGlobal::PACKET_MSG_DEVICES_DATA)
+    Serial.println(msg);
+    if (msg == JMGlobal::PACKET_MSG_DO_CMD)
     {
         if (!this->initialized)
-        {
-            this->firstRun(package);
-            this->initialized = true;
-        }
-    }
-    else if (msg == JMGlobal::PACKET_MSG_DO_CMD)
-    {
-        uint8_t val = JMData::getValueFromPacket(package);
-        this->doCommand(val);
+            return;
+        uint8_t inetCmd = JMData::getValueFromPacket(package);
+        uint8_t cmd = this->getTranslatedInnetCommand(inetCmd);
+        bool on = this->isForceOnInnetCommand(inetCmd);
+        uint8_t mode = JMGlobal::CMD_MODE_FORCE_ON;
+        if (!on)
+            mode = JMGlobal::CMD_MODE_FORCE_OFF;
+        this->doInetCommand(cmd, mode);
     }
     else if (msg == JMGlobal::PACKET_MSG_SPECIAL)
     {
+        if (!this->initialized)
+            return;
         uint8_t val = JMData::getValueFromPacket(package);
         if (val == JMGlobal::MSG_SPECIAL_VALUE_SHUTDOWNALL)
         {
             this->shutDownAll();
         }
+    }
+    else if (msg == JMGlobal::PACKET_MSG_INIT_DEVICES)
+    {
+        if (this->initialized)
+            return;
+        // uint8_t val = JMData::getValueFromPacket(package);
+        this->firstRun2(package);
     }
 };
 void JMCommand::shutDownAll()
@@ -71,10 +83,10 @@ void JMCommand::shutDownAll()
     this->serverNAS->acOff();
     this->hddDock->acOff();
 };
-void JMCommand::firstRun(uint64_t package)
+void JMCommand::firstRun2(uint64_t package)
 {
     uint8_t msg = JMData::getMsgFromPacket(package);
-    if (msg != JMGlobal::PACKET_MSG_DEVICES_DATA)
+    if (msg != JMGlobal::PACKET_MSG_INIT_DEVICES)
         return;
     this->devData->updateDevData(JMData::getValueFromPacket(package));
     for (uint8_t i = 0; i < 32; i++)
@@ -96,6 +108,7 @@ void JMCommand::firstRun(uint64_t package)
             }
         }
     }
+    this->initialized = true;
 };
 JMDevice *JMCommand::getDeviceById(uint8_t id)
 {
@@ -292,21 +305,18 @@ void JMCommand::updateStats(JMDevice &dev)
 {
     return this->loaded;
 };*/
-void JMCommand::doInetCommand(char *cmd){
-
-};
-void JMCommand::doCommand(uint8_t cmd)
+void JMCommand::doInetCommand(uint8_t cmd, uint8_t cmdMode)
 {
     if (this->cmdStats[cmd] == JMGlobal::CMD_STATUS_PROCESSING)
         return;
     this->cmdStats[cmd] = JMGlobal::CMD_STATUS_PROCESSING;
     if (cmd == JMGlobal::DO_CMD_BOX_TO_LG)
     {
-        this->cmdBoxToLg();
+        this->cmdBoxToLg(cmdMode);
     }
     else if (cmd == JMGlobal::DO_CMD_BOX_TO_AKARI)
     {
-        this->cmdBoxToAkari();
+        this->cmdBoxToAkari(cmdMode);
     }
     else if (cmd == JMGlobal::DO_CMD_ELSE_TO_LG)
     {
@@ -318,19 +328,88 @@ void JMCommand::doCommand(uint8_t cmd)
     }
     else if (cmd == JMGlobal::DO_CMD_INDI_TO_LG)
     {
-        this->cmdIndiToLg();
+        this->cmdIndiToLg(cmdMode);
     }
     else if (cmd == JMGlobal::DO_CMD_INDI_TO_AKARI)
     {
-        this->cmdIndiToAkari();
+        this->cmdIndiToAkari(cmdMode);
     }
     else if (cmd == JMGlobal::DO_CMD_PS_TO_LG)
     {
-        this->cmdPsToLg();
+        this->cmdPsToLg(cmdMode);
     }
     else if (cmd == JMGlobal::DO_CMD_PS_TO_AKARI)
     {
-        this->cmdPsToAkari();
+        this->cmdPsToAkari(cmdMode);
+    }
+    else if (cmd == JMGlobal::DO_CMD_TOGGLE_POWER_SPEAKER)
+    {
+        this->cmdTogglePowerSpeaker();
+    }
+    else if (cmd == JMGlobal::DO_CMD_CALIBRATE_POWER_LG)
+    {
+        this->cmdCalibratePowerLg();
+    }
+    else if (cmd == JMGlobal::DO_CMD_CALIBRATE_POWER_AKARI)
+    {
+        this->cmdCalibratePowerAkari();
+    }
+    else if (cmd == JMGlobal::DO_CMD_CALIBRATE_POWER_MATRIX)
+    {
+        this->cmdCalibratePowerMatrix();
+    }
+    else if (cmd == JMGlobal::DO_CMD_CALIBRATE_POWER_SPEAKER)
+    {
+        this->cmdCalibratePowerSpeaker();
+    }
+    // this->wifiWire->setPackage(this->devData->devDataToInt64());
+
+    Serial.println(this->devData->cek());
+    this->cmdStats[cmd] = JMGlobal::CMD_STATUS_IDLE;
+};
+uint8_t JMCommand::getCmdStatus(uint8_t cmd)
+{
+    if (cmd < 0 || cmd > 13)
+        return 0;
+    return this->cmdStats[cmd];
+};
+void JMCommand::doCommand(uint8_t cmd)
+{
+    uint8_t cmdMode = JMGlobal::CMD_MODE_TOGGLE;
+    if (this->cmdStats[cmd] == JMGlobal::CMD_STATUS_PROCESSING)
+        return;
+    this->cmdStats[cmd] = JMGlobal::CMD_STATUS_PROCESSING;
+    if (cmd == JMGlobal::DO_CMD_BOX_TO_LG)
+    {
+        this->cmdBoxToLg(cmdMode);
+    }
+    else if (cmd == JMGlobal::DO_CMD_BOX_TO_AKARI)
+    {
+        this->cmdBoxToAkari(cmdMode);
+    }
+    else if (cmd == JMGlobal::DO_CMD_ELSE_TO_LG)
+    {
+        //
+    }
+    else if (cmd == JMGlobal::DO_CMD_ELSE_TO_AKARI)
+    {
+        //
+    }
+    else if (cmd == JMGlobal::DO_CMD_INDI_TO_LG)
+    {
+        this->cmdIndiToLg(cmdMode);
+    }
+    else if (cmd == JMGlobal::DO_CMD_INDI_TO_AKARI)
+    {
+        this->cmdIndiToAkari(cmdMode);
+    }
+    else if (cmd == JMGlobal::DO_CMD_PS_TO_LG)
+    {
+        this->cmdPsToLg(cmdMode);
+    }
+    else if (cmd == JMGlobal::DO_CMD_PS_TO_AKARI)
+    {
+        this->cmdPsToAkari(cmdMode);
     }
     else if (cmd == JMGlobal::DO_CMD_TOGGLE_POWER_SPEAKER)
     {
@@ -417,187 +496,223 @@ void JMCommand::setRemote(uint8_t remote, uint8_t display)
     }
 };
 //============================================= COMMANDS ====================================
-void JMCommand::cmdBoxToLg()
+void JMCommand::cmdBoxToLg(uint8_t cmdMode)
 {
     if (this->homeCinemaCurrent == this->playerBox) // turn of lg
     {
-        this->displayLG->acOff();
-        if (this->bedroomCurrent != this->playerBox)
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_ON)
         {
-            this->playerBox->acOff();
-        }
-        else
-        {
-            this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_BOX);
-        }
+            this->displayLG->acOff();
+            if (this->bedroomCurrent != this->playerBox)
+            {
+                this->playerBox->acOff();
+            }
+            else
+            {
+                this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_BOX);
+            }
 
-        this->hdmiAmpLG->acOff();
-        this->speaker->acOff();
-        if (this->bedroomCurrent == NULL)
-            this->hdmiMatrix->acOff();
-        this->homeCinemaCurrent = NULL;
+            this->hdmiAmpLG->acOff();
+            this->speaker->acOff();
+            if (this->bedroomCurrent == NULL)
+                this->hdmiMatrix->acOff();
+            this->homeCinemaCurrent = NULL;
+        }
     }
     else
     {
-        this->displayLG->run();
-        this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_BOX);
-        this->hdmiMatrix->run();
-        this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_LG));
-        this->hdmiAmpLG->run();
-        this->playerBox->run();
-        this->speaker->run();
-        this->homeCinemaCurrent = this->playerBox;
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
+        {
+            this->displayLG->run();
+            this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_BOX);
+            this->hdmiMatrix->run();
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_LG));
+            this->hdmiAmpLG->run();
+            this->playerBox->run();
+            this->speaker->run();
+            this->homeCinemaCurrent = this->playerBox;
+        }
     }
 };
-void JMCommand::cmdIndiToLg()
+void JMCommand::cmdIndiToLg(uint8_t cmdMode)
 {
     if (this->homeCinemaCurrent == this->playerIndi) // turn of lg
     {
-        this->displayLG->acOff();
-        if (this->bedroomCurrent != this->playerIndi)
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_ON)
         {
-            this->playerIndi->acOff();
-        }
-        else
-        {
-            this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_INDI);
-        }
+            this->displayLG->acOff();
+            if (this->bedroomCurrent != this->playerIndi)
+            {
+                this->playerIndi->acOff();
+            }
+            else
+            {
+                this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_INDI);
+            }
 
-        this->hdmiAmpLG->acOff();
-        this->speaker->acOff();
-        if (this->bedroomCurrent == NULL)
-            this->hdmiMatrix->acOff();
-        this->homeCinemaCurrent = NULL;
+            this->hdmiAmpLG->acOff();
+            this->speaker->acOff();
+            if (this->bedroomCurrent == NULL)
+                this->hdmiMatrix->acOff();
+            this->homeCinemaCurrent = NULL;
+        }
     }
     else
     {
-        this->displayLG->run();
-        this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_INDI);
-        this->hdmiMatrix->run();
-        this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_INDI_TO_LG));
-        this->hdmiAmpLG->run();
-        this->playerIndi->run();
-        this->speaker->run();
-        this->homeCinemaCurrent = this->playerIndi;
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
+        {
+            this->displayLG->run();
+            this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_INDI);
+            this->hdmiMatrix->run();
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_INDI_TO_LG));
+            this->hdmiAmpLG->run();
+            this->playerIndi->run();
+            this->speaker->run();
+            this->homeCinemaCurrent = this->playerIndi;
+        }
     }
 };
-void JMCommand::cmdPsToLg()
+void JMCommand::cmdPsToLg(uint8_t cmdMode)
 {
     if (this->homeCinemaCurrent == this->playerPS) // turn of lg
     {
-        this->displayLG->acOff();
-        if (this->bedroomCurrent != this->playerPS)
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_ON)
         {
-            this->playerPS->acOff();
-        }
+            this->displayLG->acOff();
+            if (this->bedroomCurrent != this->playerPS)
+            {
+                this->playerPS->acOff();
+            }
 
-        this->hdmiAmpLG->acOff();
-        this->speaker->acOff();
-        if (this->bedroomCurrent == NULL)
-            this->hdmiMatrix->acOff();
-        this->homeCinemaCurrent = NULL;
+            this->hdmiAmpLG->acOff();
+            this->speaker->acOff();
+            if (this->bedroomCurrent == NULL)
+                this->hdmiMatrix->acOff();
+            this->homeCinemaCurrent = NULL;
+        }
     }
     else
     {
-        this->displayLG->run();
-        this->hdmiMatrix->run();
-        this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_PS_TO_LG));
-        this->hdmiAmpLG->run();
-        this->playerPS->run();
-        this->speaker->shutDown();
-        this->homeCinemaCurrent = this->playerPS;
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
+        {
+            this->displayLG->run();
+            this->hdmiMatrix->run();
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_PS_TO_LG));
+            this->hdmiAmpLG->run();
+            this->playerPS->run();
+            this->speaker->shutDown();
+            this->homeCinemaCurrent = this->playerPS;
+        }
     }
 };
-void JMCommand::cmdElseToLg(){
+void JMCommand::cmdElseToLg(uint8_t cmdMode){
     // NOT YET
 };
 
-void JMCommand::cmdBoxToAkari()
+void JMCommand::cmdBoxToAkari(uint8_t cmdMode)
 {
     if (this->bedroomCurrent == this->playerBox) // turn of akari
     {
-        this->displayAkari->acOff();
-        if (this->homeCinemaCurrent != this->playerBox)
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_ON)
         {
-            this->playerBox->acOff();
-        }
-        else
-        {
-            this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_BOX);
-        }
+            this->displayAkari->acOff();
+            if (this->homeCinemaCurrent != this->playerBox)
+            {
+                this->playerBox->acOff();
+            }
+            else
+            {
+                this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_BOX);
+            }
 
-        this->hdmiAmpAkari->acOff();
-        if (this->homeCinemaCurrent == NULL)
-            this->hdmiMatrix->acOff();
-        this->bedroomCurrent = NULL;
+            this->hdmiAmpAkari->acOff();
+            if (this->homeCinemaCurrent == NULL)
+                this->hdmiMatrix->acOff();
+            this->bedroomCurrent = NULL;
+        }
     }
     else
     {
-        this->displayAkari->run();
-        this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_BOX);
-        this->hdmiMatrix->run();
-        this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_AKARI));
-        this->hdmiAmpAkari->run();
-        this->playerBox->run();
-        this->bedroomCurrent = this->playerBox;
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
+        {
+            this->displayAkari->run();
+            this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_BOX);
+            this->hdmiMatrix->run();
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_AKARI));
+            this->hdmiAmpAkari->run();
+            this->playerBox->run();
+            this->bedroomCurrent = this->playerBox;
+        }
     }
 };
-void JMCommand::cmdIndiToAkari()
+void JMCommand::cmdIndiToAkari(uint8_t cmdMode)
 {
     if (this->bedroomCurrent == this->playerIndi) // turn of akari
     {
-        this->displayAkari->acOff();
-        if (this->homeCinemaCurrent != this->playerIndi)
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_ON)
         {
-            this->playerIndi->acOff();
-        }
-        else
-        {
-            this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_INDI);
-        }
+            this->displayAkari->acOff();
+            if (this->homeCinemaCurrent != this->playerIndi)
+            {
+                this->playerIndi->acOff();
+            }
+            else
+            {
+                this->setRemote(JMGlobal::DEV_DISPLAY_LG, JMGlobal::DEV_PLAYER_INDI);
+            }
 
-        this->hdmiAmpAkari->acOff();
-        if (this->homeCinemaCurrent == NULL)
-            this->hdmiMatrix->acOff();
-        this->bedroomCurrent = NULL;
+            this->hdmiAmpAkari->acOff();
+            if (this->homeCinemaCurrent == NULL)
+                this->hdmiMatrix->acOff();
+            this->bedroomCurrent = NULL;
+        }
     }
     else
     {
-        this->displayAkari->run();
-        this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_INDI);
-        this->hdmiMatrix->run();
-        this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_INDI_TO_AKARI));
-        this->hdmiAmpAkari->run();
-        this->playerIndi->run();
-        this->bedroomCurrent = this->playerIndi;
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
+        {
+            this->displayAkari->run();
+            this->setRemote(JMGlobal::DEV_DISPLAY_AKARI, JMGlobal::DEV_PLAYER_INDI);
+            this->hdmiMatrix->run();
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_INDI_TO_AKARI));
+            this->hdmiAmpAkari->run();
+            this->playerIndi->run();
+            this->bedroomCurrent = this->playerIndi;
+        }
     }
 };
-void JMCommand::cmdPsToAkari()
+void JMCommand::cmdPsToAkari(uint8_t cmdMode)
 {
     if (this->bedroomCurrent == this->playerPS) // turn of akari
     {
-        this->displayAkari->acOff();
-        if (this->homeCinemaCurrent != this->playerPS)
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_ON)
         {
-            this->playerPS->acOff();
-        }
+            this->displayAkari->acOff();
+            if (this->homeCinemaCurrent != this->playerPS)
+            {
+                this->playerPS->acOff();
+            }
 
-        this->hdmiAmpAkari->acOff();
-        if (this->homeCinemaCurrent == NULL)
-            this->hdmiMatrix->acOff();
-        this->bedroomCurrent = NULL;
+            this->hdmiAmpAkari->acOff();
+            if (this->homeCinemaCurrent == NULL)
+                this->hdmiMatrix->acOff();
+            this->bedroomCurrent = NULL;
+        }
     }
     else
     {
-        this->displayAkari->run();
-        this->hdmiMatrix->run();
-        this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_PS_TO_AKARI));
-        this->hdmiAmpAkari->run();
-        this->playerPS->run();
-        this->bedroomCurrent = this->playerPS;
+        if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
+        {
+            this->displayAkari->run();
+            this->hdmiMatrix->run();
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_PS_TO_AKARI));
+            this->hdmiAmpAkari->run();
+            this->playerPS->run();
+            this->bedroomCurrent = this->playerPS;
+        }
     }
 };
-void JMCommand::cmdElseToAkari(){
+void JMCommand::cmdElseToAkari(uint8_t cmdMode){
     // NOT YET
 };
 void JMCommand::cmdTogglePowerSpeaker()
@@ -946,4 +1061,146 @@ void JMCommand::setRemoteB4()
                                   0,
                                   0);
     // this->devs->add(this->remoteB4);
+};
+uint8_t JMCommand::getTranslatedInnetCommand(uint8_t innetCmd)
+{
+    if (innetCmd == JMGlobal::DO_INET_ON_CMD_BOX_TO_LG)
+    {
+        return JMGlobal::DO_CMD_BOX_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_INDI_TO_LG)
+    {
+        return JMGlobal::DO_CMD_INDI_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_PS_TO_LG)
+    {
+        return JMGlobal::DO_CMD_PS_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_ELSE_TO_LG)
+    {
+        return JMGlobal::DO_CMD_ELSE_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_BOX_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_BOX_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_INDI_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_INDI_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_PS_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_PS_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_ELSE_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_ELSE_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_BOX_TO_LG)
+    {
+        return JMGlobal::DO_CMD_BOX_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_INDI_TO_LG)
+    {
+        return JMGlobal::DO_CMD_INDI_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_PS_TO_LG)
+    {
+        return JMGlobal::DO_CMD_PS_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_ELSE_TO_LG)
+    {
+        return JMGlobal::DO_CMD_ELSE_TO_LG;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_BOX_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_BOX_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_INDI_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_INDI_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_PS_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_PS_TO_AKARI;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_ELSE_TO_AKARI)
+    {
+        return JMGlobal::DO_CMD_ELSE_TO_AKARI;
+    }
+    else
+    {
+        return JMGlobal::DO_CMD_BOX_TO_LG; // ERROR DEFAULT
+    }
+};
+bool JMCommand::isForceOnInnetCommand(uint8_t innetCmd)
+{
+    if (innetCmd == JMGlobal::DO_INET_ON_CMD_BOX_TO_LG)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_INDI_TO_LG)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_PS_TO_LG)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_ELSE_TO_LG)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_BOX_TO_AKARI)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_INDI_TO_AKARI)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_PS_TO_AKARI)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_ON_CMD_ELSE_TO_AKARI)
+    {
+        return true;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_BOX_TO_LG)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_INDI_TO_LG)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_PS_TO_LG)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_ELSE_TO_LG)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_BOX_TO_AKARI)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_INDI_TO_AKARI)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_PS_TO_AKARI)
+    {
+        return false;
+    }
+    else if (innetCmd == JMGlobal::DO_INET_OFF_CMD_ELSE_TO_AKARI)
+    {
+        return false;
+    }
+    else
+    {
+        return true; // ERROR DEFAULT
+    }
 };

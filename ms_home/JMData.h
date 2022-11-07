@@ -19,6 +19,7 @@ public:
 
     JMData();
     uint64_t devDataToInt64();
+    uint64_t devDataToInt64Queued();
     // long long devDataToInt64b(int msg);
     void updateDevData(uint64_t val);
     const char *cek();

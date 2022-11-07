@@ -11,7 +11,7 @@ class JMWifiWire;
 class JMCommand
 {
 private:
-    uint8_t cmdStats[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // COMMAND STATUS
+    uint8_t cmdStats[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // COMMAND STATUS
     JMData *devData;
     JMWifiWire *wifiWire;
     bool initialized = false;
@@ -92,15 +92,15 @@ private:
     void setRemoteB4();
 
     // COMMAND
-    void cmdBoxToLg();
-    void cmdIndiToLg();
-    void cmdPsToLg();
-    void cmdElseToLg();
+    void cmdBoxToLg(uint8_t cmdMode);
+    void cmdIndiToLg(uint8_t cmdMode);
+    void cmdPsToLg(uint8_t cmdMode);
+    void cmdElseToLg(uint8_t cmdMode);
 
-    void cmdBoxToAkari();
-    void cmdIndiToAkari();
-    void cmdPsToAkari();
-    void cmdElseToAkari();
+    void cmdBoxToAkari(uint8_t cmdMode);
+    void cmdIndiToAkari(uint8_t cmdMode);
+    void cmdPsToAkari(uint8_t cmdMode);
+    void cmdElseToAkari(uint8_t cmdMode);
 
     void cmdTogglePowerSpeaker();
 
@@ -110,8 +110,9 @@ private:
     void cmdCalibratePowerMatrix();
 
     void setRemote(uint8_t remote, uint8_t display);
-    void firstRun(uint64_t package);
     void shutDownAll();
+    uint8_t getTranslatedInnetCommand(uint8_t innetCmd);
+    bool isForceOnInnetCommand(uint8_t innetCmd);
 
 public:
     /*static const int CMD_BOX_TO_LG = 0;
@@ -134,7 +135,7 @@ public:
     JMCommand();
     void setup(JMIr *ir, JMData *devData, JMWifiWire *wifiWire);
     void doCommand(uint8_t cmd);
-    void doInetCommand(char *cmd);
+    void doInetCommand(uint8_t cmd, uint8_t cmdMode);
     // void processTask(char *msg);
     // char *getStats();
     void updateStats(JMDevice &dev);
@@ -143,5 +144,8 @@ public:
 
     JMDevice *getDeviceById(uint8_t id);
     void processPackage(const int64_t package);
+    uint8_t getCmdStatus(uint8_t cmd);
+    void firstRun2(uint64_t package);
+    bool isInitialized();
 };
 #endif

@@ -1,22 +1,19 @@
 #include "JMCommand.h"
-//#include "JMWifi.h"
 #include "JMGlobal.h"
 #include "JMWifiWire.h"
 #include "JMData.h"
-//#include "JMMsgs.h"
 #include "JMIr.h"
 
-// JMWifi *wifi = new JMWifi();
 JMIr *ir = new JMIr();
 JMCommand *cmd = new JMCommand();
 JMData *devData = new JMData();
-// JMMsgs *msgs = new JMMsgs();
-// long long jimi = 1;
 
 JMWifiWire *wifiWire = new JMWifiWire();
-bool networkConnected = false;
-bool goodToGo = false;
+bool ongoingPackage = false;
+bool packageSent = true;
 uint64_t package = 0;
+bool online = false;
+
 void setup()
 {
   Serial.begin(JMGlobal::baudrate);
@@ -25,74 +22,38 @@ void setup()
   ir->setup();
   cmd->setup(ir, devData, wifiWire);
   Serial.println(F("RESET"));
-  // JMData::msgToBytes(devData->devDataToInt64());
-
-  //  const char *tmp = devData->cek();
-  //  Serial.println(tmp);
-
-  // wifi->setup();
-
-  // cmd->doCommand(JMGlobal::DO_CMD_BOX_TO_LG);
-  /*List<List<char> *> *kkk = new List<List<char> *>();
-  List<char> *ddd = new List<char>();
-  char ccc = 'a';
-  ddd->add(ccc);
-  ccc = 'b';
-  ddd->add(ccc);
-
-  kkk->add(ddd);
-  delete ddd;
-  Serial.println(kkk->getValue(0)->toArray());*/
 }
 bool go = true;
 void loop()
 {
-
-  // Serial.println("tes");
-  if (package != 0)
+  if (cmd->isInitialized())
   {
-    cmd->processPackage(package);
-    package = 0;
+    Serial.println("OK");
   }
-  ir->receiveIr();
-  // delay(1000);
-  /*uint32_t ir = irRec->decode();
-  if (ir != 0)
-    Serial.println(ir);*/
-  /*
-    if (goodToGo)
+  if (ongoingPackage)
+  {
+    uint8_t msg = JMData::getMsgFromPacket(package);
+    if (msg == JMGlobal::PACKET_MSG_DO_CMD)
     {
-      // loop
-      if (go)
+      uint8_t command = JMData::getValueFromPacket(package);
+      if (cmd->getCmdStatus(command) == JMGlobal::CMD_STATUS_IDLE)
       {
-        go = false;
-        cmd->doCommand(JMGlobal::DO_CMD_BOX_TO_LG);
-        processMsg();
+        // newPackageCompleted = false;
+        cmd->processPackage(package);
+        ongoingPackage = false;
       }
     }
-    else
-    {
-      if (cmd->isLoaded() && networkConnected)
-        goodToGo = true;
-    }
-    */
-}
-
-void doit()
-{
-
-  // cmd
-  // delay(5000);
-}
-
-void tes(String a)
-{
-  Serial.println(a);
+  }
+  else
+  {
+    if (packageSent && cmd->isInitialized())
+      ir->receiveIr();
+  }
 }
 
 void receiveEvent(int howMany)
 {
-  // Serial.println(F("receiving"));
+  Serial.println("receive");
   byte data[howMany];
   int i = 0;
   while (wifiWire->getWire()->available())
@@ -101,20 +62,58 @@ void receiveEvent(int howMany)
     data[i++] = c;
   }
   package = msgInt64(data);
-  // cmd->processPackage(package);
+  ongoingPackage = true;
+  packageSent = false;
 }
 
 void requestEvent()
 {
-  Serial.println(F("requested"));
-  networkConnected = true;
-  uint64_t data = devData->devDataToInt64();
+  Serial.println("requested");
+  uint64_t data;
+  if (ongoingPackage)
+  {
+    data = devData->devDataToInt64();
+  }
+  else
+  {
+    if (packageSent)
+    {
+      data = devData->devDataToInt64();
+    }
+    else
+    {
+      data = devData->devDataToInt64Queued();
+    }
+    byte *msg = JMData::msgToBytes(data);
+    for (uint8_t i = 0; i < 8; i++)
+    {
+      // Serial.println(*(msg + i));
+    }
+
+    if (cmd->isInitialized())
+    {
+      Serial.println("send");
+      wifiWire->sendMessage2(msg);
+    }
+
+    if (!packageSent)
+    {
+      packageSent = true;
+    }
+  }
+
+  /*uint64_t data = devData->devDataToInt64();
+  if (!newPackageCompleted)
+    data = devData->devDataToInt64Queued();
   byte *msg = JMData::msgToBytes(data);
   for (uint8_t i = 0; i < 8; i++)
   {
-    Serial.println(*(msg + i));
+    // Serial.println(*(msg + i));
   }
+  Serial.println("send");
   wifiWire->sendMessage2(msg);
+  if (!newPackageCompleted)
+    newPackageCompleted = true;*/
 }
 
 uint64_t msgInt64(byte *msg)
@@ -136,26 +135,3 @@ uint64_t msgInt64(byte *msg)
   uint64_t d7 = msg[7];
   return d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7;
 }
-
-/*void processMsg()
-{
-  uint64_t msg = msgs->dequeueMsg();
-  if (msg == 0)
-    return;
-  uint64_t msgType = msg >> 56;
-  uint64_t tmp = msg << 8;
-  uint64_t data = tmp >> 8;
-  if (msgType == JMGlobal::PACKET_MSG_UPDATE_DEVICES_DATA)
-  {
-    devData->updateDevData(data);
-  }
-  else if (msgType == JMGlobal::PACKET_MSG_REQUEST_DEVICES_DATA)
-  {
-    uint64_t data = devData->devDataToInt64(JMGlobal::PACKET_MSG_UPDATE_DEVICES_DATA);
-    // wifiWire->sendMessage(msgStr(data));
-  }
-  else
-  {
-    cmd->doCommand(data);
-  }
-}*/
