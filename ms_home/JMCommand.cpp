@@ -17,19 +17,13 @@ void JMCommand::setup(JMIr *ir, JMData *devData, JMWifiWire *wifiWire)
     this->ir->setCommander(*this);
     this->initSetup();
 };
-bool JMCommand::isInitialized()
-{
-    return this->initialized;
-};
 void JMCommand::processPackage(const int64_t package)
 {
-    // Serial.println(F("prosesing"));
+    Serial.println(F("prosesing"));
     uint8_t msg = JMData::getMsgFromPacket(package);
-    Serial.println(msg);
-    if (msg == JMGlobal::PACKET_MSG_DO_CMD)
+    // Serial.println(msg);
+    if (msg == JMGlobal::PACKET_MSG_DO_CMD && this->initialized)
     {
-        if (!this->initialized)
-            return;
         uint8_t inetCmd = JMData::getValueFromPacket(package);
         uint8_t cmd = this->getTranslatedInnetCommand(inetCmd);
         bool on = this->isForceOnInnetCommand(inetCmd);
@@ -38,20 +32,16 @@ void JMCommand::processPackage(const int64_t package)
             mode = JMGlobal::CMD_MODE_FORCE_OFF;
         this->doInetCommand(cmd, mode);
     }
-    else if (msg == JMGlobal::PACKET_MSG_SPECIAL)
+    else if (msg == JMGlobal::PACKET_MSG_SPECIAL && this->initialized)
     {
-        if (!this->initialized)
-            return;
         uint8_t val = JMData::getValueFromPacket(package);
         if (val == JMGlobal::MSG_SPECIAL_VALUE_SHUTDOWNALL)
         {
             this->shutDownAll();
         }
     }
-    else if (msg == JMGlobal::PACKET_MSG_INIT_DEVICES)
+    else if (msg == JMGlobal::PACKET_MSG_INIT_DEVICES && !this->initialized)
     {
-        if (this->initialized)
-            return;
         // uint8_t val = JMData::getValueFromPacket(package);
         this->firstRun2(package);
     }
@@ -85,6 +75,9 @@ void JMCommand::shutDownAll()
 };
 void JMCommand::firstRun2(uint64_t package)
 {
+    Serial.println(F("firstrun"));
+    if (this->initialized)
+        return;
     uint8_t msg = JMData::getMsgFromPacket(package);
     if (msg != JMGlobal::PACKET_MSG_INIT_DEVICES)
         return;
@@ -373,8 +366,14 @@ uint8_t JMCommand::getCmdStatus(uint8_t cmd)
         return 0;
     return this->cmdStats[cmd];
 };
+bool JMCommand::isInitialized()
+{
+    return this->initialized;
+};
 void JMCommand::doCommand(uint8_t cmd)
 {
+    if (!this->initialized)
+        return;
     uint8_t cmdMode = JMGlobal::CMD_MODE_TOGGLE;
     if (this->cmdStats[cmd] == JMGlobal::CMD_STATUS_PROCESSING)
         return;

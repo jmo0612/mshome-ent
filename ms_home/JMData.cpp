@@ -198,7 +198,7 @@ void JMData::updateDevData(uint64_t val)
         this->dev[ind--] = remain;
         quotient = quotient / 3;
     } while (quotient > 0);
-    for (uint8_t i = ind; i >= 0; i--)
+    for (uint8_t i = 0; i <= ind; i++)
     {
         this->dev[i] = 0;
     }

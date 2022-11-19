@@ -12,7 +12,6 @@ JMWifiWire *wifiWire = new JMWifiWire();
 bool ongoingPackage = false;
 bool packageSent = true;
 uint64_t package = 0;
-bool online = false;
 
 void setup()
 {
@@ -26,10 +25,6 @@ void setup()
 bool go = true;
 void loop()
 {
-  if (cmd->isInitialized())
-  {
-    Serial.println("OK");
-  }
   if (ongoingPackage)
   {
     uint8_t msg = JMData::getMsgFromPacket(package);
@@ -43,17 +38,23 @@ void loop()
         ongoingPackage = false;
       }
     }
+    else
+    {
+      cmd->processPackage(package);
+      ongoingPackage = false;
+      packageSent = true;
+    }
   }
   else
   {
-    if (packageSent && cmd->isInitialized())
+    if (packageSent)
       ir->receiveIr();
   }
 }
 
 void receiveEvent(int howMany)
 {
-  Serial.println("receive");
+  Serial.println(F("receive"));
   byte data[howMany];
   int i = 0;
   while (wifiWire->getWire()->available())
@@ -68,13 +69,10 @@ void receiveEvent(int howMany)
 
 void requestEvent()
 {
-  Serial.println("requested");
+  // Serial.println(F("xrequested"));
   uint64_t data;
+
   if (ongoingPackage)
-  {
-    data = devData->devDataToInt64();
-  }
-  else
   {
     if (packageSent)
     {
@@ -82,38 +80,59 @@ void requestEvent()
     }
     else
     {
+      Serial.println(F("QUE"));
       data = devData->devDataToInt64Queued();
     }
-    byte *msg = JMData::msgToBytes(data);
-    for (uint8_t i = 0; i < 8; i++)
-    {
-      // Serial.println(*(msg + i));
     }
-
-    if (cmd->isInitialized())
-    {
-      Serial.println("send");
-      wifiWire->sendMessage2(msg);
-    }
-
-    if (!packageSent)
-    {
-      packageSent = true;
-    }
+  else
+  {
+    data = devData->devDataToInt64();
   }
 
-  /*uint64_t data = devData->devDataToInt64();
-  if (!newPackageCompleted)
-    data = devData->devDataToInt64Queued();
   byte *msg = JMData::msgToBytes(data);
   for (uint8_t i = 0; i < 8; i++)
   {
     // Serial.println(*(msg + i));
   }
+
+  if (cmd->isInitialized())
+  {
+    Serial.println(F("send"));
+    wifiWire->sendMessage2(msg);
+  }
+  else
+  {
+    Serial.println(F("uninitialized"));
+    byte tmp[8];
+    tmp[0] = 255;
+    tmp[1] = 0;
+    tmp[2] = 0;
+    tmp[3] = 0;
+    tmp[4] = 0;
+    tmp[5] = 0;
+    tmp[6] = 0;
+    tmp[7] = 0;
+
+    wifiWire->sendMessage2(tmp);
+  }
+
+  if (!packageSent)
+  {
+    packageSent = true;
+  }
+
+  /*uint64_t data = devData->devDataToInt64();
+  if (!packageSent)
+    data = devData->devDataToInt64Queued();
+  byte *msg = JMData::msgToBytes(data);
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    Serial.println(*(msg + i));
+  }
   Serial.println("send");
   wifiWire->sendMessage2(msg);
-  if (!newPackageCompleted)
-    newPackageCompleted = true;*/
+  if (!packageSent)
+    packageSent = true;*/
 }
 
 uint64_t msgInt64(byte *msg)

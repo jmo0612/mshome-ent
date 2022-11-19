@@ -15,9 +15,6 @@ private:
     JMData *devData;
     JMWifiWire *wifiWire;
     bool initialized = false;
-    // bool loaded = false;
-    //  char *stats = "00000000000000";
-    // List<JMDevice *> *devs;
     JMDevice *homeCinemaCurrent = NULL;
     JMDevice *bedroomCurrent = NULL;
 
