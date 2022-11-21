@@ -20,7 +20,9 @@ public:
     static const uint32_t IR_B1_CODE = 4257650505;
     static const uint32_t IR_B2_CODE = 271251858;
     static const uint32_t IR_B3_CODE = 2952684369;
-    static const uint32_t IR_B4_CODE = 2508896912;*/
+    static const uint32_t IR_B4_CODE = 2508896912;
+    static const uint32_t IR_AP_CODE = 3909119151;
+    static const uint32_t IR_BP_CODE = 1937930936;*/
 
     static const uint8_t IR_LG1_ID = 0;
     static const uint8_t IR_LG2_ID = 1;
@@ -30,6 +32,8 @@ public:
     static const uint8_t IR_AK2_ID = 5;
     static const uint8_t IR_AK3_ID = 6;
     static const uint8_t IR_AK4_ID = 7;
+    static const uint8_t IR_LGP_ID = 8;
+    static const uint8_t IR_AKP_ID = 9;
 
     uint8_t irLg1Count = 0;
     uint8_t irLg2Count = 0;
@@ -39,6 +43,8 @@ public:
     uint8_t irAk2Count = 0;
     uint8_t irAk3Count = 0;
     uint8_t irAk4Count = 0;
+    uint8_t irLgPCount = 0;
+    uint8_t irAkPCount = 0;
 
     unsigned long irLg1Time = 0;
     unsigned long irLg2Time = 0;
@@ -48,6 +54,8 @@ public:
     unsigned long irAk2Time = 0;
     unsigned long irAk3Time = 0;
     unsigned long irAk4Time = 0;
+    unsigned long irLgPTime = 0;
+    unsigned long irAkPTime = 0;
 
     static const uint32_t getIrCode(uint8_t id);
 

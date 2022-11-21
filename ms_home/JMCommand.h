@@ -11,7 +11,7 @@ class JMWifiWire;
 class JMCommand
 {
 private:
-    uint8_t cmdStats[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // COMMAND STATUS
+    uint8_t cmdStats[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // COMMAND STATUS
     JMData *devData;
     JMWifiWire *wifiWire;
     bool initialized = false;
@@ -33,6 +33,7 @@ private:
     JMDevice *playerBox;
     JMDevice *playerIndi;
     JMDevice *playerPS;
+    JMDevice *playerElse;
 
     JMDevice *serverEvercossBat;
     JMDevice *serverEvercossCharger;
@@ -73,6 +74,7 @@ private:
     void setPlayerBox();
     void setPlayerIndi();
     void setPlayerPS();
+    void setPlayerElse();
 
     void setServerEvercossBat();
     void setServerEvercossCharger();
@@ -100,11 +102,18 @@ private:
     void cmdElseToAkari(uint8_t cmdMode);
 
     void cmdTogglePowerSpeaker();
+    void cmdToggleSleepLg();
+    void cmdToggleSleepAkari();
 
-    void cmdCalibratePowerLg();
-    void cmdCalibratePowerAkari();
+    void cmdCalibratePowerDisplayLG();
+    void cmdCalibratePowerDisplayAkari();
+    void cmdCalibratePowerPlayerLG();
+    void cmdCalibratePowerPlayerAkari();
     void cmdCalibratePowerSpeaker();
     void cmdCalibratePowerMatrix();
+
+    void cmdTurnLgOff();
+    void cmdTurnAkariOff();
 
     void setRemote(uint8_t remote, uint8_t display);
     void shutDownAll();
@@ -131,7 +140,7 @@ public:
 
     JMCommand();
     void setup(JMIr *ir, JMData *devData, JMWifiWire *wifiWire);
-    void doCommand(uint8_t cmd);
+    void doCommand(uint8_t cmd, uint8_t cmdMode);
     void doInetCommand(uint8_t cmd, uint8_t cmdMode);
     // void processTask(char *msg);
     // char *getStats();
