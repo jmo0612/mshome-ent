@@ -39,15 +39,3 @@ TwoWire *JMWifiWire::getWire()
 {
     return this->_wire;
 };
-/*void JMWifiWire::sendPackage()
-{
-    if (this->package != 0)
-    {
-        this->sendMessage2(JMData::msgToBytes(this->package));
-        this->package = 0;
-    }
-};
-void JMWifiWire::setPackage(uint64_t package)
-{
-    this->package = package;
-};*/

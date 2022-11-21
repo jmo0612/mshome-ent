@@ -13,18 +13,7 @@ private:
     void processIr(uint8_t id);
 
 public:
-    /*static const uint32_t IR_A1_CODE = 2733166887;
-    static const uint32_t IR_A2_CODE = 1663147656;
-    static const uint32_t IR_A3_CODE = 1494494661;
-    static const uint32_t IR_A4_CODE = 3967086620;
-    static const uint32_t IR_B1_CODE = 4257650505;
-    static const uint32_t IR_B2_CODE = 271251858;
-    static const uint32_t IR_B3_CODE = 2952684369;
-    static const uint32_t IR_B4_CODE = 2508896912;
-    static const uint32_t IR_AP_CODE = 3909119151;
-    static const uint32_t IR_BP_CODE = 1937930936;*/
-
-    static const uint8_t IR_LG1_ID = 0;
+        static const uint8_t IR_LG1_ID = 0;
     static const uint8_t IR_LG2_ID = 1;
     static const uint8_t IR_LG3_ID = 2;
     static const uint8_t IR_LG4_ID = 3;

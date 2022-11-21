@@ -58,13 +58,13 @@ void JMRelay8::digitalWritePin(uint8_t pinId, uint8_t value)
     {
         if (value == HIGH)
         {
-            Serial.println("TURNING ON");
+            // Serial.println("TURNING ON");
 
             this->pins[pinId]->turnOn();
         }
         else
         {
-            Serial.println("TURNING OFF");
+            // Serial.println("TURNING OFF");
             this->pins[pinId]->turnOff();
         }
     }

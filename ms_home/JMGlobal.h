@@ -50,15 +50,30 @@ public:
     static const uint8_t DO_INET_ON_CMD_INDI_TO_AKARI = 6;
     static const uint8_t DO_INET_ON_CMD_PS_TO_AKARI = 7;
     static const uint8_t DO_INET_ON_CMD_ELSE_TO_AKARI = 8;
+    static const uint8_t DO_INET_ON_CMD_SPEAKER = 9;
+    static const uint8_t DO_INET_CMD_SLEEP_LG = 10;
+    static const uint8_t DO_INET_CMD_SLEEP_AKARI = 11;
 
-    static const uint8_t DO_INET_OFF_CMD_BOX_TO_LG = 9;
-    static const uint8_t DO_INET_OFF_CMD_INDI_TO_LG = 10;
-    static const uint8_t DO_INET_OFF_CMD_PS_TO_LG = 11;
-    static const uint8_t DO_INET_OFF_CMD_ELSE_TO_LG = 12;
-    static const uint8_t DO_INET_OFF_CMD_BOX_TO_AKARI = 13;
-    static const uint8_t DO_INET_OFF_CMD_INDI_TO_AKARI = 14;
-    static const uint8_t DO_INET_OFF_CMD_PS_TO_AKARI = 15;
-    static const uint8_t DO_INET_OFF_CMD_ELSE_TO_AKARI = 16;
+    static const uint8_t DO_INET_OFF_CMD_BOX_TO_LG = 12;
+    static const uint8_t DO_INET_OFF_CMD_INDI_TO_LG = 13;
+    static const uint8_t DO_INET_OFF_CMD_PS_TO_LG = 14;
+    static const uint8_t DO_INET_OFF_CMD_ELSE_TO_LG = 15;
+    static const uint8_t DO_INET_OFF_CMD_BOX_TO_AKARI = 16;
+    static const uint8_t DO_INET_OFF_CMD_INDI_TO_AKARI = 17;
+    static const uint8_t DO_INET_OFF_CMD_PS_TO_AKARI = 18;
+    static const uint8_t DO_INET_OFF_CMD_ELSE_TO_AKARI = 19;
+    static const uint8_t DO_INET_OFF_CMD_SPEAKER = 20;
+    static const uint8_t DO_INET_CMD_WAKE_LG = 21;
+    static const uint8_t DO_INET_CMD_WAKE_AKARI = 22;
+
+    static const uint8_t DO_INET_CMD_CALIBRATE_POWER_DISPLAY_LG = 23;
+    static const uint8_t DO_INET_CMD_CALIBRATE_POWER_DISPLAY_AKARI = 24;
+    static const uint8_t DO_INET_CMD_CALIBRATE_POWER_PLAYER_LG = 25;
+    static const uint8_t DO_INET_CMD_CALIBRATE_POWER_PLAYER_AKARI = 26;
+    static const uint8_t DO_INET_CMD_CALIBRATE_POWER_SPEAKER = 27;
+    static const uint8_t DO_INET_CMD_CALIBRATE_POWER_MATRIX = 28;
+    static const uint8_t DO_INET_CMD_TURN_LG_OFF = 29;
+    static const uint8_t DO_INET_CMD_TURN_AKARI_OFF = 30;
 
     static const uint8_t DEV_DISPLAY_LG = 31; // 0
     static const uint8_t DEV_DISPLAY_AKARI = 30;

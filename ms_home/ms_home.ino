@@ -20,7 +20,7 @@ void setup()
   wifiWire->setAsSlave(8, receiveEvent, requestEvent);
   ir->setup();
   cmd->setup(ir, devData, wifiWire);
-  Serial.println(F("RESET"));
+  // Serial.println(F("RESET"));
 }
 bool go = true;
 void loop()
@@ -30,7 +30,10 @@ void loop()
     uint8_t msg = JMData::getMsgFromPacket(package);
     if (msg == JMGlobal::PACKET_MSG_DO_CMD)
     {
-      uint8_t command = JMData::getValueFromPacket(package);
+      // Serial.println(F("package do cmd"));
+
+      uint8_t inetCommand = JMData::getValueFromPacket(package);
+      uint8_t command = cmd->getTranslatedInnetCommand(inetCommand);
       if (cmd->getCmdStatus(command) == JMGlobal::CMD_STATUS_IDLE)
       {
         // newPackageCompleted = false;
@@ -54,7 +57,7 @@ void loop()
 
 void receiveEvent(int howMany)
 {
-  Serial.println(F("receive"));
+  // Serial.println(F("receive"));
   byte data[howMany];
   int i = 0;
   while (wifiWire->getWire()->available())
@@ -80,10 +83,10 @@ void requestEvent()
     }
     else
     {
-      Serial.println(F("QUE"));
+      // Serial.println(F("QUE"));
       data = devData->devDataToInt64Queued();
     }
-    }
+  }
   else
   {
     data = devData->devDataToInt64();
@@ -97,12 +100,12 @@ void requestEvent()
 
   if (cmd->isInitialized())
   {
-    Serial.println(F("send"));
+    // Serial.println(F("send"));
     wifiWire->sendMessage2(msg);
   }
   else
   {
-    Serial.println(F("uninitialized"));
+    // Serial.println(F("uninitialized"));
     byte tmp[8];
     tmp[0] = 255;
     tmp[1] = 0;
@@ -120,19 +123,6 @@ void requestEvent()
   {
     packageSent = true;
   }
-
-  /*uint64_t data = devData->devDataToInt64();
-  if (!packageSent)
-    data = devData->devDataToInt64Queued();
-  byte *msg = JMData::msgToBytes(data);
-  for (uint8_t i = 0; i < 8; i++)
-  {
-    Serial.println(*(msg + i));
-  }
-  Serial.println("send");
-  wifiWire->sendMessage2(msg);
-  if (!packageSent)
-    packageSent = true;*/
 }
 
 uint64_t msgInt64(byte *msg)
