@@ -57,6 +57,7 @@ JMDevice::JMDevice(uint8_t id, JMCommand &commander, JMRelay &relay, JMIr &ir, u
 };
 bool JMDevice::acOn()
 {
+    // Serial.println(this->id);
     if (this->mode != DEV_MODE_DEAD)
         return false;
     // do it
@@ -65,12 +66,19 @@ bool JMDevice::acOn()
     this->relay->turnOn();
     delay(this->acOnDelay);
     this->mode = DEV_MODE_STANDBY;
+    if (this->alwaysRunWithoutIrFromACOff)
+        this->shutDownFailed = true;
     if (this->shutDownFailed)
     {
         delay(this->runDelay);
         this->mode = DEV_MODE_RUNNING;
+        this->shutDownFailed = false;
+        // Serial.println(F("langsung"));
     }
+    // else
+    //  Serial.println(F("nda langsung"));
     this->commander->updateStats(*this);
+    // Serial.println(this->mode);
     return true;
 };
 bool JMDevice::acOff()
@@ -109,7 +117,8 @@ bool JMDevice::run()
         // ac on
         if (this->acOn())
         {
-            if (this->mode = DEV_MODE_STANDBY)
+            // Serial.println(this->mode);
+            if (this->mode == DEV_MODE_STANDBY)
             {
                 return this->run();
             }
@@ -131,6 +140,7 @@ bool JMDevice::run()
         {
             this->ir->sendIr(JMDevice::getIrPower(this->id, true));
             delay(this->runDelay);
+            // Serial.println(F("IR sent"));
         }
         this->mode = DEV_MODE_RUNNING;
         this->commander->updateStats(*this);
@@ -159,7 +169,7 @@ uint8_t JMDevice::getMode()
 {
     return this->mode;
 };
-void JMDevice::setShutDownFailed(bool failed)
+void JMDevice::setShutDownFailed(bool failed = true)
 {
     this->shutDownFailed = failed;
 };
@@ -169,4 +179,8 @@ void JMDevice::calibrate()
         this->ir->sendIr(JMDevice::getIrPower(this->id, true));
     else
         this->ir->sendIr(JMDevice::getIrPower(this->id, false));
+};
+void JMDevice::setAlwaysRunWithoutIrFromACOff(bool yes = true)
+{
+    this->alwaysRunWithoutIrFromACOff = yes;
 };

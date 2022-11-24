@@ -13,6 +13,7 @@ private:
     JMRelay *relay;
     JMIr *ir;
     bool shutDownFailed = false;
+    bool alwaysRunWithoutIrFromACOff = false;
 
     uint16_t acOnDelay;
     uint16_t acOffDelay;
@@ -33,6 +34,7 @@ public:
     uint8_t getId();
     uint8_t getMode();
     void calibrate();
-    void setShutDownFailed(bool failed);
+    void setShutDownFailed(bool failed = true);
+    void setAlwaysRunWithoutIrFromACOff(bool yes = true);
 };
 #endif

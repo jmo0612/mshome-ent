@@ -123,11 +123,11 @@ void JMCommand::firstRun2(uint64_t package)
         {
             if (this->devData->getDeviceStatus(i) == 1)
             {
-                tmp->acOn();
+                tmp->setShutDownFailed(); // MODIFICATION: first run without IR
             }
             else if (this->devData->getDeviceStatus(i) == 2)
             {
-                tmp->run();
+                tmp->setAlwaysRunWithoutIrFromACOff(); // MODIFICATION: always run without IR (from acOff)
             }
             else
             {
