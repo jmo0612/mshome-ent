@@ -50,7 +50,7 @@ void loop()
   }
   else
   {
-    if (packageSent)
+    if (packageSent && cmd->isInitialized())
       ir->receiveIr();
   }
 }

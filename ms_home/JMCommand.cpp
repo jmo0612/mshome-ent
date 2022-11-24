@@ -69,6 +69,10 @@ void JMCommand::processPackage(const int64_t package)
         if (val == JMGlobal::MSG_SPECIAL_VALUE_SHUTDOWNALL)
         {
             this->shutDownAll();
+            this->serverNAS->acOff();
+            this->hddDock->acOff();
+            this->serverEvercossCharger->acOff();
+            this->serverEvercossBat->acOff();
         }
     }
     else if (msg == JMGlobal::PACKET_MSG_INIT_DEVICES && !this->initialized)
@@ -79,14 +83,13 @@ void JMCommand::processPackage(const int64_t package)
 };
 void JMCommand::shutDownAll()
 {
-    this->serverEvercossCharger->acOff();
-
     this->speaker->acOff();
     this->displayLG->acOff();
     this->displayAkari->acOff();
     this->playerBox->acOff();
     this->playerIndi->acOff();
     this->playerPS->acOff();
+    this->playerElse->acOff();
     this->hdmiAmpPS->acOff();
     this->hdmiAmpLG->acOff();
     this->hdmiAmpAkari->acOff();
@@ -101,8 +104,6 @@ void JMCommand::shutDownAll()
     this->remoteB3->acOff();
     this->remoteB4->acOff();
 
-    this->serverNAS->acOff();
-    this->hddDock->acOff();
     this->homeCinemaCurrent = NULL;
     this->bedroomCurrent = NULL;
 };
@@ -130,10 +131,13 @@ void JMCommand::firstRun2(uint64_t package)
             }
             else
             {
-                tmp->acOff();
+                if (i != JMGlobal::DEV_SERVER_EVERCOSS_CHARGER && i != JMGlobal::DEV_SERVER_EVERCOSS_BAT && i != JMGlobal::DEV_HDD_DOCK && i != JMGlobal::DEV_SERVER_NAS)
+                    tmp->acOff();
             }
         }
     }
+    this->serverNAS->run();
+    this->hddDock->run();
     this->initialized = true;
 };
 JMDevice *JMCommand::getDeviceById(uint8_t id)
@@ -615,7 +619,7 @@ void JMCommand::cmdElseToLg(uint8_t cmdMode)
         {
             this->displayLG->run();
             this->hdmiMatrix->run();
-            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_LG));
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_ELSE_TO_LG));
             this->hdmiAmpLG->run();
             this->playerElse->run();
             if (!this->speakerTurnedOff)
@@ -752,7 +756,7 @@ void JMCommand::cmdElseToAkari(uint8_t cmdMode)
         {
             this->displayAkari->run();
             this->hdmiMatrix->run();
-            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_AKARI));
+            this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_ELSE_TO_AKARI));
             this->hdmiAmpAkari->run();
             this->playerElse->run();
             this->bedroomCurrent = this->playerElse;
@@ -1003,7 +1007,7 @@ void JMCommand::initSetup()
 
     // BATAS MEMORI
     this->setPlayerBox();
-
+    this->setPlayerElse();
     this->setPlayerIndi();
     this->setPlayerPS();
 
@@ -1021,6 +1025,10 @@ void JMCommand::initSetup()
     this->setRemoteB2();
     this->setRemoteB3();
     this->setRemoteB4();
+
+    // for fisrtsrun, run the server
+    this->serverEvercossBat->run();
+    this->serverEvercossCharger->run();
 };
 
 void JMCommand::setRelay8()
