@@ -1142,7 +1142,7 @@ void JMCommand::setPlayerPS()
 {
     this->playerPS = new JMDevice(JMGlobal::DEV_PLAYER_PS,
                                   *this,
-                                  *this->relay8[1]->getRelay(0),
+                                  *this->relay8[1]->getRelay(7),
                                   *this->ir,
                                   5000,
                                   2000,
@@ -1216,7 +1216,7 @@ void JMCommand::setSpeaker()
 {
     this->speaker = new JMDevice(JMGlobal::DEV_SPEAKER,
                                  *this,
-                                 *this->relay8[1]->getRelay(5),
+                                 *this->relay8[1]->getRelay(0),
                                  *this->ir,
                                  5000,
                                  2000,
