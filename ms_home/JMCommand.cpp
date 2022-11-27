@@ -1043,7 +1043,7 @@ void JMCommand::setDisplayLG()
 {
     this->displayLG = new JMDevice(JMGlobal::DEV_DISPLAY_LG,
                                    *this,
-                                   *this->relay8[0]->getRelay(0),
+                                   *this->relay8[0]->getRelay(4),
                                    *this->ir,
                                    5000,
                                    2000,
@@ -1092,7 +1092,7 @@ void JMCommand::setHdmiAmpPS()
 {
     this->hdmiAmpPS = new JMDevice(JMGlobal::DEV_HDMI_AMP_PS,
                                    *this,
-                                   *this->relay8[0]->getRelay(4),
+                                   *this->relay8[0]->getRelay(0),
                                    *this->ir,
                                    5000,
                                    2000,
