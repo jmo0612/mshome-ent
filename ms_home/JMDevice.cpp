@@ -64,13 +64,13 @@ bool JMDevice::acOn()
     if (this->relay == NULL)
         return false;
     this->relay->turnOn();
-    delay(this->acOnDelay);
+    customDelay(this->acOnDelay);
     this->mode = DEV_MODE_STANDBY;
     if (this->alwaysRunWithoutIrFromACOff)
         this->shutDownFailed = true;
     if (this->shutDownFailed)
     {
-        delay(this->runDelay);
+        customDelay(this->runDelay);
         this->mode = DEV_MODE_RUNNING;
         this->shutDownFailed = false;
         // Serial.println(F("langsung"));
@@ -102,7 +102,7 @@ bool JMDevice::acOff()
         if (this->relay == NULL)
             return false;
         this->relay->turnOff();
-        delay(this->acOffDelay);
+        customDelay(this->acOffDelay);
         this->mode = DEV_MODE_DEAD;
         this->commander->updateStats(*this);
         return true;
@@ -138,9 +138,12 @@ bool JMDevice::run()
         // do it
         if (JMDevice::getIrPower(this->id, true) != 0)
         {
+            // if (this->id == JMGlobal::DEV_DISPLAY_LG)
+            //  Serial.println(F("sending ir"));
             this->ir->sendIr(JMDevice::getIrPower(this->id, true));
-            delay(this->runDelay);
-            // Serial.println(F("IR sent"));
+            customDelay(this->runDelay);
+            // if (this->id == JMGlobal::DEV_DISPLAY_LG)
+            //  Serial.println(F("IR sent"));
         }
         this->mode = DEV_MODE_RUNNING;
         this->commander->updateStats(*this);
@@ -155,7 +158,7 @@ bool JMDevice::shutDown()
     if (JMDevice::getIrPower(this->id, false) != 0x0)
     {
         this->ir->sendIr(JMDevice::getIrPower(this->id, false));
-        delay(this->shutDownDelay);
+        customDelay(this->shutDownDelay);
     }
     this->mode = DEV_MODE_STANDBY;
     this->commander->updateStats(*this);
@@ -183,4 +186,14 @@ void JMDevice::calibrate()
 void JMDevice::setAlwaysRunWithoutIrFromACOff(bool yes = true)
 {
     this->alwaysRunWithoutIrFromACOff = yes;
+};
+void JMDevice::customDelay(unsigned long _delay)
+{
+    const unsigned long start = millis();
+    unsigned long now = start;
+    do
+    {
+        // delay(100);
+        now = millis();
+    } while (now - start < _delay);
 };

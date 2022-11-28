@@ -51,7 +51,9 @@ void loop()
   else
   {
     if (packageSent && cmd->isInitialized())
+    {
       ir->receiveIr();
+    }
   }
 }
 

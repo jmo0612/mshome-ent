@@ -36,5 +36,6 @@ public:
     void calibrate();
     void setShutDownFailed(bool failed = true);
     void setAlwaysRunWithoutIrFromACOff(bool yes = true);
+    void customDelay(unsigned long delay);
 };
 #endif

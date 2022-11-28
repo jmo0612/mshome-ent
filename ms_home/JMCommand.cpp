@@ -72,7 +72,7 @@ void JMCommand::processPackage(const int64_t package)
             this->serverNAS->acOff();
             this->hddDock->acOff();
             this->serverEvercossCharger->acOff();
-            this->serverEvercossBat->acOff();
+            // this->serverEvercossBat->acOff();
         }
     }
     else if (msg == JMGlobal::PACKET_MSG_INIT_DEVICES && !this->initialized)
@@ -83,13 +83,18 @@ void JMCommand::processPackage(const int64_t package)
 };
 void JMCommand::shutDownAll()
 {
-    this->speaker->acOff();
-    this->displayLG->acOff();
-    this->displayAkari->acOff();
     this->playerBox->acOff();
     this->playerIndi->acOff();
     this->playerPS->acOff();
     this->playerElse->acOff();
+
+    this->speaker->acOff();
+    this->displayLG->acOff();
+    this->displayAkari->acOff();
+    // this->playerBox->acOff();
+    // this->playerIndi->acOff();
+    // this->playerPS->acOff();
+    // this->playerElse->acOff();
     this->hdmiAmpPS->acOff();
     this->hdmiAmpLG->acOff();
     this->hdmiAmpAkari->acOff();
@@ -1123,7 +1128,7 @@ void JMCommand::setPlayerBox()
                                    5000,
                                    2000,
                                    5000,
-                                   5000);
+                                   10000);
     // this->devs->add(this->playerBox);
 };
 void JMCommand::setPlayerIndi()
@@ -1135,7 +1140,7 @@ void JMCommand::setPlayerIndi()
                                     5000,
                                     2000,
                                     5000,
-                                    5000);
+                                    10000);
     // this->devs->add(this->playerIndi);
 };
 void JMCommand::setPlayerPS()
@@ -1147,7 +1152,7 @@ void JMCommand::setPlayerPS()
                                   5000,
                                   2000,
                                   30000,
-                                  120000);
+                                  90000);
     // this->devs->add(this->playerPS);
 };
 
@@ -1158,7 +1163,7 @@ void JMCommand::setPlayerElse()
                                     *this->relay8[1]->getRelay(6),
                                     *this->ir,
                                     5000,
-                                    5000,
+                                    2000,
                                     5000,
                                     5000);
     // this->devs->add(this->playerPS);
@@ -1173,7 +1178,7 @@ void JMCommand::setServerEvercossBat()
                                            5000,
                                            2000,
                                            5000,
-                                           60000);
+                                           5000);
     // this->devs->add(this->serverEvercossBat);
 };
 void JMCommand::setServerEvercossCharger()
@@ -1183,7 +1188,7 @@ void JMCommand::setServerEvercossCharger()
                                                *this->relay8[1]->getRelay(2),
                                                *this->ir,
                                                5000,
-                                               2000,
+                                               8000,
                                                5000,
                                                5000);
     // this->devs->add(this->serverEvercossCharger);
