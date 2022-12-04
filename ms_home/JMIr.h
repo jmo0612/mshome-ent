@@ -9,11 +9,10 @@ class JMIr
 private:
     JMCommand *commander;
 
-    void processIr2(uint32_t code);
-    void processIr(uint8_t id);
+    void processIr(uint8_t id, bool trace);
 
 public:
-        static const uint8_t IR_LG1_ID = 0;
+    static const uint8_t IR_LG1_ID = 0;
     static const uint8_t IR_LG2_ID = 1;
     static const uint8_t IR_LG3_ID = 2;
     static const uint8_t IR_LG4_ID = 3;
@@ -50,8 +49,7 @@ public:
 
     JMIr();
     void setup();
-    void receiveIr2();
-    void receiveIr();
+    void receiveIr(bool trace = false);
     void sendIr(uint32_t code);
     void setCommander(JMCommand &commander);
 };

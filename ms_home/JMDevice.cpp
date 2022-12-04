@@ -187,13 +187,10 @@ void JMDevice::setAlwaysRunWithoutIrFromACOff(bool yes = true)
 {
     this->alwaysRunWithoutIrFromACOff = yes;
 };
-void JMDevice::customDelay(unsigned long _delay)
+void JMDevice::customDelay(const unsigned long _delay)
 {
     const unsigned long start = millis();
-    unsigned long now = start;
     do
     {
-        // delay(100);
-        now = millis();
-    } while (now - start < _delay);
+    } while (millis() - start < _delay);
 };

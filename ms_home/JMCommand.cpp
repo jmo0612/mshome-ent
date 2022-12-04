@@ -83,19 +83,20 @@ void JMCommand::processPackage(const int64_t package)
 };
 void JMCommand::shutDownAll()
 {
+    this->displayLG->acOff();
+    this->displayAkari->acOff();
     this->playerBox->acOff();
     this->playerIndi->acOff();
     this->playerPS->acOff();
     this->playerElse->acOff();
 
     this->speaker->acOff();
-    this->displayLG->acOff();
-    this->displayAkari->acOff();
     // this->playerBox->acOff();
     // this->playerIndi->acOff();
     // this->playerPS->acOff();
     // this->playerElse->acOff();
     this->hdmiAmpPS->acOff();
+    this->hdmiAmpIndi->acOff();
     this->hdmiAmpLG->acOff();
     this->hdmiAmpAkari->acOff();
     this->hdmiMatrix->acOff();
@@ -516,9 +517,9 @@ void JMCommand::cmdBoxToLg(uint8_t cmdMode)
         if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
         {
             this->displayLG->run();
-            this->setRemote(JMGlobal::DEV_PLAYER_BOX, JMGlobal::DEV_DISPLAY_LG);
             this->hdmiMatrix->run();
             this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_LG));
+            this->setRemote(JMGlobal::DEV_PLAYER_BOX, JMGlobal::DEV_DISPLAY_LG);
             this->hdmiAmpLG->run();
             this->playerBox->run();
             if (!this->speakerTurnedOff)
@@ -537,6 +538,7 @@ void JMCommand::cmdIndiToLg(uint8_t cmdMode)
             if (this->bedroomCurrent != this->playerIndi)
             {
                 this->playerIndi->acOff();
+                this->hdmiAmpIndi->acOff();
             }
             else
             {
@@ -555,10 +557,11 @@ void JMCommand::cmdIndiToLg(uint8_t cmdMode)
         if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
         {
             this->displayLG->run();
-            this->setRemote(JMGlobal::DEV_PLAYER_INDI, JMGlobal::DEV_DISPLAY_LG);
             this->hdmiMatrix->run();
             this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_INDI_TO_LG));
+            this->setRemote(JMGlobal::DEV_PLAYER_INDI, JMGlobal::DEV_DISPLAY_LG);
             this->hdmiAmpLG->run();
+            this->hdmiAmpIndi->run();
             this->playerIndi->run();
             if (!this->speakerTurnedOff)
                 this->speaker->run();
@@ -576,6 +579,7 @@ void JMCommand::cmdPsToLg(uint8_t cmdMode)
             if (this->bedroomCurrent != this->playerPS)
             {
                 this->playerPS->acOff();
+                this->hdmiAmpPS->acOff();
             }
 
             this->hdmiAmpLG->acOff();
@@ -592,8 +596,10 @@ void JMCommand::cmdPsToLg(uint8_t cmdMode)
             this->displayLG->run();
             this->hdmiMatrix->run();
             this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_PS_TO_LG));
-            this->hdmiAmpLG->run();
             this->playerPS->run();
+            this->hdmiAmpPS->run();
+            this->hdmiAmpLG->run();
+
             if (!this->speakerTurnedOff)
                 this->speaker->shutDown();
             this->homeCinemaCurrent = this->playerPS;
@@ -661,9 +667,9 @@ void JMCommand::cmdBoxToAkari(uint8_t cmdMode)
         if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
         {
             this->displayAkari->run();
-            this->setRemote(JMGlobal::DEV_PLAYER_BOX, JMGlobal::DEV_DISPLAY_AKARI);
             this->hdmiMatrix->run();
             this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_BOX_TO_AKARI));
+            this->setRemote(JMGlobal::DEV_PLAYER_BOX, JMGlobal::DEV_DISPLAY_AKARI);
             this->hdmiAmpAkari->run();
             this->playerBox->run();
             this->bedroomCurrent = this->playerBox;
@@ -680,6 +686,7 @@ void JMCommand::cmdIndiToAkari(uint8_t cmdMode)
             if (this->homeCinemaCurrent != this->playerIndi)
             {
                 this->playerIndi->acOff();
+                this->hdmiAmpIndi->acOff();
             }
             else
             {
@@ -697,10 +704,11 @@ void JMCommand::cmdIndiToAkari(uint8_t cmdMode)
         if (cmdMode != JMGlobal::CMD_MODE_FORCE_OFF)
         {
             this->displayAkari->run();
-            this->setRemote(JMGlobal::DEV_PLAYER_INDI, JMGlobal::DEV_DISPLAY_AKARI);
             this->hdmiMatrix->run();
             this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_INDI_TO_AKARI));
+            this->setRemote(JMGlobal::DEV_PLAYER_INDI, JMGlobal::DEV_DISPLAY_AKARI);
             this->hdmiAmpAkari->run();
+            this->hdmiAmpIndi->run();
             this->playerIndi->run();
             this->bedroomCurrent = this->playerIndi;
         }
@@ -716,6 +724,7 @@ void JMCommand::cmdPsToAkari(uint8_t cmdMode)
             if (this->homeCinemaCurrent != this->playerPS)
             {
                 this->playerPS->acOff();
+                this->hdmiAmpPS->acOff();
             }
 
             this->hdmiAmpAkari->acOff();
@@ -731,8 +740,10 @@ void JMCommand::cmdPsToAkari(uint8_t cmdMode)
             this->displayAkari->run();
             this->hdmiMatrix->run();
             this->ir->sendIr(this->getMatrixCode(JMGlobal::DO_CMD_PS_TO_AKARI));
-            this->hdmiAmpAkari->run();
             this->playerPS->run();
+            this->hdmiAmpPS->run();
+            this->hdmiAmpAkari->run();
+
             this->bedroomCurrent = this->playerPS;
         }
     }
@@ -1007,6 +1018,7 @@ void JMCommand::initSetup()
     this->setHdmiAmpLG();
     this->setHdmiAmpAkari();
     this->setHdmiAmpPS();
+    this->setHdmiAmpIndi();
 
     this->setHdmiMatrix();
 
@@ -1050,10 +1062,10 @@ void JMCommand::setDisplayLG()
                                    *this,
                                    *this->relay8[0]->getRelay(4),
                                    *this->ir,
-                                   5000,
+                                   8000,
                                    2000,
                                    5000,
-                                   5000);
+                                   8000);
     // this->devs->add(this->displayLG);
 };
 void JMCommand::setDisplayAkari()
@@ -1062,10 +1074,10 @@ void JMCommand::setDisplayAkari()
                                       *this,
                                       *this->relay8[0]->getRelay(1),
                                       *this->ir,
-                                      5000,
+                                      8000,
                                       2000,
                                       5000,
-                                      5000);
+                                      8000);
     // this->devs->add(this->displayAkari);
 };
 
@@ -1105,6 +1117,18 @@ void JMCommand::setHdmiAmpPS()
                                    0);
     // this->devs->add(this->hdmiAmpPS);
 };
+void JMCommand::setHdmiAmpIndi()
+{
+    this->hdmiAmpIndi = new JMDevice(JMGlobal::DEV_HDMI_AMP_INDI,
+                                     *this,
+                                     *this->relay8[1]->getRelay(5),
+                                     *this->ir,
+                                     5000,
+                                     2000,
+                                     0,
+                                     0);
+    // this->devs->add(this->hdmiAmpPS);
+};
 
 void JMCommand::setHdmiMatrix()
 {
@@ -1112,10 +1136,10 @@ void JMCommand::setHdmiMatrix()
                                     *this,
                                     *this->relay8[0]->getRelay(5),
                                     *this->ir,
-                                    5000,
+                                    8000,
                                     2000,
                                     5000,
-                                    5000);
+                                    8000);
     // this->devs->add(this->hdmiMatrix);
 };
 
@@ -1125,7 +1149,7 @@ void JMCommand::setPlayerBox()
                                    *this,
                                    *this->relay8[0]->getRelay(6),
                                    *this->ir,
-                                   5000,
+                                   8000,
                                    2000,
                                    5000,
                                    10000);
@@ -1137,7 +1161,7 @@ void JMCommand::setPlayerIndi()
                                     *this,
                                     *this->relay8[0]->getRelay(7),
                                     *this->ir,
-                                    5000,
+                                    8000,
                                     2000,
                                     5000,
                                     10000);
@@ -1149,10 +1173,10 @@ void JMCommand::setPlayerPS()
                                   *this,
                                   *this->relay8[1]->getRelay(7),
                                   *this->ir,
-                                  5000,
+                                  8000,
                                   2000,
-                                  30000,
-                                  90000);
+                                  5000,
+                                  20000);
     // this->devs->add(this->playerPS);
 };
 
@@ -1162,10 +1186,10 @@ void JMCommand::setPlayerElse()
                                     *this,
                                     *this->relay8[1]->getRelay(6),
                                     *this->ir,
-                                    5000,
+                                    8000,
                                     2000,
                                     5000,
-                                    5000);
+                                    8000);
     // this->devs->add(this->playerPS);
 };
 
@@ -1175,10 +1199,10 @@ void JMCommand::setServerEvercossBat()
                                            *this,
                                            *this->relay8[1]->getRelay(1),
                                            *this->ir,
-                                           5000,
+                                           8000,
                                            2000,
                                            5000,
-                                           5000);
+                                           8000);
     // this->devs->add(this->serverEvercossBat);
 };
 void JMCommand::setServerEvercossCharger()
@@ -1199,10 +1223,10 @@ void JMCommand::setServerNAS()
                                    *this,
                                    *this->relay8[1]->getRelay(3),
                                    *this->ir,
-                                   5000,
+                                   8000,
                                    2000,
                                    5000,
-                                   5000);
+                                   8000);
     // this->devs->add(this->serverNAS);
 };
 void JMCommand::setHddDock()
@@ -1211,10 +1235,10 @@ void JMCommand::setHddDock()
                                  *this,
                                  *this->relay8[1]->getRelay(4),
                                  *this->ir,
-                                 5000,
+                                 8000,
                                  2000,
                                  5000,
-                                 5000);
+                                 8000);
     // this->devs->add(this->hddDock);
 };
 void JMCommand::setSpeaker()
@@ -1223,10 +1247,10 @@ void JMCommand::setSpeaker()
                                  *this,
                                  *this->relay8[1]->getRelay(0),
                                  *this->ir,
-                                 5000,
+                                 8000,
                                  2000,
                                  5000,
-                                 5000);
+                                 8000);
     // this->devs->add(this->speaker);
 };
 void JMCommand::setRemoteA1()

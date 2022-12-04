@@ -28,6 +28,7 @@ private:
     JMDevice *hdmiAmpLG;
     JMDevice *hdmiAmpAkari;
     JMDevice *hdmiAmpPS;
+    JMDevice *hdmiAmpIndi;
 
     JMDevice *hdmiMatrix;
 
@@ -69,6 +70,7 @@ private:
     void setHdmiAmpLG();
     void setHdmiAmpAkari();
     void setHdmiAmpPS();
+    void setHdmiAmpIndi();
 
     void setHdmiMatrix();
 
@@ -121,7 +123,7 @@ private:
     bool isForceOnInnetCommand(uint8_t innetCmd);
 
 public:
-        JMCommand();
+    JMCommand();
     void setup(JMIr *ir, JMData *devData, JMWifiWire *wifiWire);
     void doCommand(uint8_t cmd, uint8_t cmdMode);
     void doInetCommand(uint8_t cmd, uint8_t cmdMode);

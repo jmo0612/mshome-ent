@@ -70,14 +70,16 @@ void JMIr::setup()
     IrReceiver.begin(2, false);
 };
 
-void JMIr::receiveIr()
+void JMIr::receiveIr(bool trace = false)
 {
     uint16_t max = 2000;
     uint16_t min = 200;
     if (IrReceiver.decode())
     {
         uint32_t code = IrReceiver.decodedIRData.decodedRawData;
-        // Serial.println(code);
+
+        if (trace && code != 0)
+            Serial.println(code);
         const unsigned long ml = millis();
         if (code == JMIr::getIrCode(JMIr::IR_LG1_ID))
         {
@@ -228,7 +230,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irLg1Time > max)
             {
-                this->processIr(JMIr::IR_LG1_ID);
+                this->processIr(JMIr::IR_LG1_ID, trace);
                 this->irLg1Time = 0;
                 this->irLg1Count = 0;
             }
@@ -237,7 +239,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irLg2Time > max)
             {
-                this->processIr(JMIr::IR_LG2_ID);
+                this->processIr(JMIr::IR_LG2_ID, trace);
                 this->irLg2Time = 0;
                 this->irLg2Count = 0;
             }
@@ -246,7 +248,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irLg3Time > max)
             {
-                this->processIr(JMIr::IR_LG3_ID);
+                this->processIr(JMIr::IR_LG3_ID, trace);
                 this->irLg3Time = 0;
                 this->irLg3Count = 0;
             }
@@ -255,7 +257,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irLg4Time > max)
             {
-                this->processIr(JMIr::IR_LG4_ID);
+                this->processIr(JMIr::IR_LG4_ID, trace);
                 this->irLg4Time = 0;
                 this->irLg4Count = 0;
             }
@@ -264,7 +266,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irLgPTime > max)
             {
-                this->processIr(JMIr::IR_LGP_ID);
+                this->processIr(JMIr::IR_LGP_ID, trace);
                 this->irLgPTime = 0;
                 this->irLgPCount = 0;
             }
@@ -273,7 +275,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irAk1Time > max)
             {
-                this->processIr(JMIr::IR_AK1_ID);
+                this->processIr(JMIr::IR_AK1_ID, trace);
                 this->irAk1Time = 0;
                 this->irAk1Count = 0;
             }
@@ -282,7 +284,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irAk2Time > max)
             {
-                this->processIr(JMIr::IR_AK2_ID);
+                this->processIr(JMIr::IR_AK2_ID, trace);
                 this->irAk2Time = 0;
                 this->irAk2Count = 0;
             }
@@ -291,7 +293,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irAk3Time > max)
             {
-                this->processIr(JMIr::IR_AK3_ID);
+                this->processIr(JMIr::IR_AK3_ID, trace);
                 this->irAk3Time = 0;
                 this->irAk3Count = 0;
             }
@@ -300,7 +302,7 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irAk4Time > max)
             {
-                this->processIr(JMIr::IR_AK4_ID);
+                this->processIr(JMIr::IR_AK4_ID, trace);
                 this->irAk4Time = 0;
                 this->irAk4Count = 0;
             }
@@ -309,39 +311,33 @@ void JMIr::receiveIr()
         {
             if (millis() - this->irAkPTime > max)
             {
-                this->processIr(JMIr::IR_AKP_ID);
+                this->processIr(JMIr::IR_AKP_ID, trace);
                 this->irAkPTime = 0;
                 this->irAkPCount = 0;
             }
         }
     }
 };
-void JMIr::receiveIr2()
-{
-    if (IrReceiver.decode())
-    {
-        uint32_t code = IrReceiver.decodedIRData.decodedRawData;
-        this->processIr(code);
-        IrReceiver.resume();
-    }
-};
-void JMIr::processIr(uint8_t id)
+void JMIr::processIr(uint8_t id, bool trace)
 {
     if (id == JMIr::IR_LG1_ID)
     {
         if (this->irLg1Count == 1)
         {
-            // Serial.println(F("A1:      1"));
+            if (trace)
+                Serial.println(F("A1:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irLg1Count == 2)
         {
-            // Serial.println(F("A1:      2"));
+            if (trace)
+                Serial.println(F("A1:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irLg1Count >= 5)
         {
-            // Serial.println(F("A1:      >=5"));
+            if (trace)
+                Serial.println(F("A1:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_DISPLAY_LG, 0);
         }
     }
@@ -349,17 +345,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irLg2Count == 1)
         {
-            // Serial.println(F("A2:      1"));
+            if (trace)
+                Serial.println(F("A2:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irLg2Count == 2)
         {
-            // Serial.println(F("A2:      2"));
+            if (trace)
+                Serial.println(F("A2:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irLg2Count >= 5)
         {
-            // Serial.println(F("A2:      >=5"));
+            if (trace)
+                Serial.println(F("A2:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_SPEAKER, 0);
         }
     }
@@ -367,17 +366,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irLg3Count == 1)
         {
-            // Serial.println(F("A3:      1"));
+            if (trace)
+                Serial.println(F("A3:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irLg3Count == 2)
         {
-            // Serial.println(F("A3:      2"));
+            if (trace)
+                Serial.println(F("A3:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irLg3Count >= 5)
         {
-            // Serial.println(F("A3:      >=5"));
+            if (trace)
+                Serial.println(F("A3:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_MATRIX, 0);
         }
     }
@@ -385,17 +387,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irLg4Count == 1)
         {
-            // Serial.println(F("A4:      1"));
+            if (trace)
+                Serial.println(F("A4:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irLg4Count == 2)
         {
-            // Serial.println(F("A4:      2"));
+            if (trace)
+                Serial.println(F("A4:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irLg4Count >= 5)
         {
-            // Serial.println(F("A4:      >=5"));
+            if (trace)
+                Serial.println(F("A4:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_PLAYER_LG, 0);
         }
     }
@@ -403,17 +408,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irLgPCount == 1)
         {
-            // Serial.println(F("AP:      1"));
+            if (trace)
+                Serial.println(F("AP:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_TOGGLE_SLEEP_LG, 0);
         }
         else if (this->irLgPCount == 2)
         {
-            // Serial.println(F("AP:      2"));
+            if (trace)
+                Serial.println(F("AP:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_TURN_LG_OFF, 0);
         }
         else if (this->irLgPCount == 3)
         {
-            // Serial.println(F("AP:      3"));
+            if (trace)
+                Serial.println(F("AP:      3"));
             this->commander->doCommand(JMGlobal::DO_CMD_TOGGLE_POWER_SPEAKER, 0);
         }
     }
@@ -421,17 +429,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irAk1Count == 1)
         {
-            // Serial.println(F("B1:      1"));
+            if (trace)
+                Serial.println(F("B1:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irAk1Count == 2)
         {
-            // Serial.println(F("B1:      2"));
+            if (trace)
+                Serial.println(F("B1:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irAk1Count >= 5)
         {
-            // Serial.println(F("B1:      >=5"));
+            if (trace)
+                Serial.println(F("B1:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_DISPLAY_AKARI, 0);
         }
     }
@@ -439,17 +450,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irAk2Count == 1)
         {
-            // Serial.println(F("B2:      1"));
+            if (trace)
+                Serial.println(F("B2:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irAk2Count == 2)
         {
-            // Serial.println(F("B2:      2"));
+            if (trace)
+                Serial.println(F("B2:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irAk2Count >= 5)
         {
-            // Serial.println(F("B2:      >=5"));
+            if (trace)
+                Serial.println(F("B2:      >=5"));
             // no command
         }
     }
@@ -457,17 +471,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irAk3Count == 1)
         {
-            // Serial.println(F("B3:      1"));
+            if (trace)
+                Serial.println(F("B3:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irAk3Count == 2)
         {
-            // Serial.println(F("B3:      2"));
+            if (trace)
+                Serial.println(F("B3:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irAk3Count >= 5)
         {
-            // Serial.println(F("B3:      >=5"));
+            if (trace)
+                Serial.println(F("B3:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_MATRIX, 0);
         }
     }
@@ -475,17 +492,20 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irAk4Count == 1)
         {
-            // Serial.println(F("B4:      1"));
+            if (trace)
+                Serial.println(F("B4:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
         else if (this->irAk4Count == 2)
         {
-            // Serial.println(F("B4:      2"));
+            if (trace)
+                Serial.println(F("B4:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
         else if (this->irAk4Count >= 5)
         {
-            // Serial.println(F("B4:      >=5"));
+            if (trace)
+                Serial.println(F("B4:      >=5"));
             this->commander->doCommand(JMGlobal::DO_CMD_CALIBRATE_POWER_PLAYER_AKARI, 0);
         }
     }
@@ -493,12 +513,14 @@ void JMIr::processIr(uint8_t id)
     {
         if (this->irAkPCount == 1)
         {
-            // Serial.println(F("BP:      1"));
+            if (trace)
+                Serial.println(F("BP:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_TOGGLE_SLEEP_AKARI, 0);
         }
         else if (this->irAkPCount == 2)
         {
-            // Serial.println(F("BP:      2"));
+            if (trace)
+                Serial.println(F("BP:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_TURN_AKARI_OFF, 0);
         }
     }

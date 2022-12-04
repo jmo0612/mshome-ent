@@ -90,6 +90,7 @@ public:
     static const uint8_t DEV_SERVER_NAS = 19;
     static const uint8_t DEV_HDD_DOCK = 18;
     static const uint8_t DEV_SPEAKER = 17;
+    static const uint8_t DEV_HDMI_AMP_INDI = 16;
 
     static const uint8_t DEV_REMOTE_A1 = 7;
     static const uint8_t DEV_REMOTE_A2 = 6;

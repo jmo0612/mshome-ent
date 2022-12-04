@@ -52,7 +52,7 @@ void loop()
   {
     if (packageSent && cmd->isInitialized())
     {
-      ir->receiveIr();
+      ir->receiveIr(false);
     }
   }
 }
