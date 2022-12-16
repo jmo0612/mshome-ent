@@ -15,7 +15,7 @@ uint64_t package = 0;
 
 void setup()
 {
-  Serial.begin(JMGlobal::baudrate);
+  Serial.begin(JMGlobal::baudrate());
 
   wifiWire->setAsSlave(8, receiveEvent, requestEvent);
   ir->setup();
@@ -28,13 +28,13 @@ void loop()
   if (ongoingPackage)
   {
     uint8_t msg = JMData::getMsgFromPacket(package);
-    if (msg == JMGlobal::PACKET_MSG_DO_CMD)
+    if (msg == 1 /*PACKET_MSG_DO_CMD*/)
     {
       // Serial.println(F("package do cmd"));
 
       uint8_t inetCommand = JMData::getValueFromPacket(package);
       uint8_t command = cmd->getTranslatedInnetCommand(inetCommand);
-      if (cmd->getCmdStatus(command) == JMGlobal::CMD_STATUS_IDLE)
+      if (cmd->getCmdStatus(command) == 0 /*CMD_STATUS_IDLE*/)
       {
         // newPackageCompleted = false;
         cmd->processPackage(package);

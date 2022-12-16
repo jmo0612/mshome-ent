@@ -142,7 +142,7 @@ const uint64_t JMData::getMsgMultiplier(uint8_t packetMsg)
 };
 const uint64_t JMData::devInitToInt64(const char *str)
 {
-    uint64_t msgInt64 = JMGlobal::PACKET_MSG_INIT_DEVICES * msgMultiplier;
+    uint64_t msgInt64 = 4/*PACKET_MSG_INIT_DEVICES*/ * msgMultiplier;
     uint64_t dataVal = 0;
     uint8_t devSize = 32;
 
@@ -157,7 +157,7 @@ const uint64_t JMData::devInitToInt64(const char *str)
 };
 uint64_t JMData::devDataToInt64()
 {
-    uint64_t msgInt64 = JMGlobal::PACKET_MSG_DEVICES_DATA * msgMultiplier;
+    uint64_t msgInt64 = 0 /*PACKET_MSG_DEVICES_DATA*/ * msgMultiplier;
     uint64_t dataVal = 0;
     uint8_t devSize = 32;
 
@@ -170,7 +170,7 @@ uint64_t JMData::devDataToInt64()
 };
 uint64_t JMData::devDataToInt64Queued()
 {
-    uint64_t msgInt64 = JMGlobal::PACKET_MSG_QUEUED_DEVICES_DATA * msgMultiplier;
+    uint64_t msgInt64 = 3 /*PACKET_MSG_QUEUED_DEVICES_DATA*/ * msgMultiplier;
     uint64_t dataVal = 0;
     uint8_t devSize = 32;
 

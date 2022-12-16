@@ -8,27 +8,27 @@ const uint32_t JMDevice::getIrPower(uint8_t id, bool on = true)
 {
     if (on)
     {
-        if (id == JMGlobal::DEV_DISPLAY_LG)
+        if (id == 31/*DEV_DISPLAY_LG*/)
         {
             return 4144560900;
         }
-        else if (id == JMGlobal::DEV_DISPLAY_AKARI)
+        else if (id == 30/*DEV_DISPLAY_AKARI*/)
         {
             return 4111105792;
         }
-        else if (id == JMGlobal::DEV_HDMI_MATRIX)
+        else if (id == 26/*DEV_HDMI_MATRIX*/)
         {
             return 3977412480;
         }
-        else if (id == JMGlobal::DEV_PLAYER_BOX)
+        else if (id == 25/*DEV_PLAYER_BOX*/)
         {
             return 2122416000;
         }
-        else if (id == JMGlobal::DEV_PLAYER_INDI)
+        else if (id == 24/*DEV_PLAYER_INDI*/)
         {
             return 3208707840;
         }
-        else if (id == JMGlobal::DEV_SPEAKER)
+        else if (id == 17/*DEV_SPEAKER*/)
         {
             return 4278190467;
         }
