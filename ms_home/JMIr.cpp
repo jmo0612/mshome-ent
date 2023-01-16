@@ -1,7 +1,7 @@
 #include "JMIr.h"
 #include "JMCommand.h"
 #include "JMGlobal.h"
-//#include "PinDefinitionsAndMore.h"
+// #include "PinDefinitionsAndMore.h"
 #include <IRremote.hpp>
 
 const uint32_t JMIr::getIrCode(uint8_t id)
@@ -81,239 +81,121 @@ void JMIr::receiveIr(bool trace = false)
         if (trace && code != 0)
             Serial.println(code);
         const unsigned long ml = millis();
-        if (code == JMIr::getIrCode(JMIr::IR_LG1_ID))
+        if (code == JMIr::getIrCode(JMIr::IR_LG1_ID) || code == JMIr::getIrCode(JMIr::IR_LG2_ID) || code == JMIr::getIrCode(JMIr::IR_LG3_ID) || code == JMIr::getIrCode(JMIr::IR_LG4_ID) || code == JMIr::getIrCode(JMIr::IR_LGP_ID))
         {
-            if (ml - this->irLg1Time < max && ml - this->irLg1Time > min)
+            uint8_t id = 250;
+            if (code == JMIr::getIrCode(JMIr::IR_LG1_ID))
             {
-                if (this->irLg1Count < 255)
-                    this->irLg1Count++;
+                id = JMIr::IR_LG1_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_LG2_ID))
+            {
+                id = JMIr::IR_LG2_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_LG3_ID))
+            {
+                id = JMIr::IR_LG3_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_LG4_ID))
+            {
+                id = JMIr::IR_LG4_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_LGP_ID))
+            {
+                id = JMIr::IR_LGP_ID;
             }
             else
             {
-                if (this->irLg1Count == 0)
-                    this->irLg1Count = 1;
+                IrReceiver.resume();
+                return;
             }
-            this->irLg1Time = ml;
+            if (this->lastLgId != id)
+            {
+                this->lastLgId = id;
+                this->irLgCount = 0;
+                this->irLgTime = 0;
+            }
+            if (ml - this->irLgTime < max && ml - this->irLgTime > min)
+            {
+                if (this->irLgCount < 255)
+                    this->irLgCount++;
+            }
+            else
+            {
+                if (this->irLgCount == 0)
+                    this->irLgCount = 1;
+            }
+            this->irLgTime = ml;
         }
-        else if (code == JMIr::getIrCode(JMIr::IR_LG2_ID))
+        else if (code == JMIr::getIrCode(JMIr::IR_AK1_ID) || code == JMIr::getIrCode(JMIr::IR_AK2_ID) || code == JMIr::getIrCode(JMIr::IR_AK3_ID) || code == JMIr::getIrCode(JMIr::IR_AK4_ID) || code == JMIr::getIrCode(JMIr::IR_AKP_ID))
         {
-            if (ml - this->irLg2Time < max && ml - this->irLg2Time > min)
+            uint8_t id = 250;
+            if (code == JMIr::getIrCode(JMIr::IR_AK1_ID))
             {
-                if (this->irLg2Count < 255)
-                    this->irLg2Count++;
+                id = JMIr::IR_AK1_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_AK2_ID))
+            {
+                id = JMIr::IR_AK2_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_AK3_ID))
+            {
+                id = JMIr::IR_AK3_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_AK4_ID))
+            {
+                id = JMIr::IR_AK4_ID;
+            }
+            else if (code == JMIr::getIrCode(JMIr::IR_AKP_ID))
+            {
+                id = JMIr::IR_AKP_ID;
             }
             else
             {
-                if (this->irLg2Count == 0)
-                    this->irLg2Count = 1;
+                IrReceiver.resume();
+                return;
             }
-            this->irLg2Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_LG3_ID))
-        {
-            if (ml - this->irLg3Time < max && ml - this->irLg3Time > min)
+            if (this->lastAkId != id)
             {
-                if (this->irLg3Count < 255)
-                    this->irLg3Count++;
+                this->lastAkId = id;
+                this->irAkCount = 0;
+                this->irAkTime = 0;
+            }
+            if (ml - this->irAkTime < max && ml - this->irAkTime > min)
+            {
+                if (this->irAkCount < 255)
+                    this->irAkCount++;
             }
             else
             {
-                if (this->irLg3Count == 0)
-                    this->irLg3Count = 1;
+                if (this->irAkCount == 0)
+                    this->irAkCount = 1;
             }
-            this->irLg3Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_LG4_ID))
-        {
-            if (ml - this->irLg4Time < max && ml - this->irLg4Time > min)
-            {
-                if (this->irLg4Count < 255)
-                    this->irLg4Count++;
-            }
-            else
-            {
-                if (this->irLg4Count == 0)
-                    this->irLg4Count = 1;
-            }
-            this->irLg4Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_LGP_ID))
-        {
-            if (ml - this->irLgPTime < max && ml - this->irLgPTime > min)
-            {
-                if (this->irLgPCount < 255)
-                    this->irLgPCount++;
-            }
-            else
-            {
-                if (this->irLgPCount == 0)
-                    this->irLgPCount = 1;
-            }
-            this->irLgPTime = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_AK1_ID))
-        {
-            if (ml - this->irAk1Time < max && ml - this->irAk1Time > min)
-            {
-                if (this->irAk1Count < 255)
-                    this->irAk1Count++;
-            }
-            else
-            {
-                if (this->irAk1Count == 0)
-                    this->irAk1Count = 1;
-            }
-            this->irAk1Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_AK2_ID))
-        {
-            if (ml - this->irAk2Time < max && ml - this->irAk2Time > min)
-            {
-                if (this->irAk2Count < 255)
-                    this->irAk2Count++;
-            }
-            else
-            {
-                if (this->irAk2Count == 0)
-                    this->irAk2Count = 1;
-            }
-            this->irAk2Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_AK3_ID))
-        {
-            if (ml - this->irAk3Time < max && ml - this->irAk3Time > min)
-            {
-                if (this->irAk3Count < 255)
-                    this->irAk3Count++;
-            }
-            else
-            {
-                if (this->irAk3Count == 0)
-                    this->irAk3Count = 1;
-            }
-            this->irAk3Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_AK4_ID))
-        {
-            if (ml - this->irAk4Time < max && ml - this->irAk4Time > min)
-            {
-                if (this->irAk4Count < 255)
-                    this->irAk4Count++;
-            }
-            else
-            {
-                if (this->irAk4Count == 0)
-                    this->irAk4Count = 1;
-            }
-            this->irAk4Time = ml;
-        }
-        else if (code == JMIr::getIrCode(JMIr::IR_AKP_ID))
-        {
-            if (ml - this->irAkPTime < max && ml - this->irAkPTime > min)
-            {
-                if (this->irAkPCount < 255)
-                    this->irAkPCount++;
-            }
-            else
-            {
-                if (this->irAkPCount == 0)
-                    this->irAkPCount = 1;
-            }
-            this->irAkPTime = ml;
+            this->irAkTime = ml;
         }
         IrReceiver.resume();
     }
     else
     {
         // proses ir-s
-        if (this->irLg1Count > 0)
+        if (this->irLgCount > 0)
         {
-            if (millis() - this->irLg1Time > max)
+            if (millis() - this->irLgTime > max)
             {
-                this->processIr(JMIr::IR_LG1_ID, trace);
-                this->irLg1Time = 0;
-                this->irLg1Count = 0;
+                this->processIr(this->lastLgId, trace);
+                this->irLgTime = 0;
+                this->irLgCount = 0;
+                this->lastLgId = 250;
             }
         }
-        if (this->irLg2Count > 0)
+        if (this->irAkCount > 0)
         {
-            if (millis() - this->irLg2Time > max)
+            if (millis() - this->irAkTime > max)
             {
-                this->processIr(JMIr::IR_LG2_ID, trace);
-                this->irLg2Time = 0;
-                this->irLg2Count = 0;
-            }
-        }
-        if (this->irLg3Count > 0)
-        {
-            if (millis() - this->irLg3Time > max)
-            {
-                this->processIr(JMIr::IR_LG3_ID, trace);
-                this->irLg3Time = 0;
-                this->irLg3Count = 0;
-            }
-        }
-        if (this->irLg4Count > 0)
-        {
-            if (millis() - this->irLg4Time > max)
-            {
-                this->processIr(JMIr::IR_LG4_ID, trace);
-                this->irLg4Time = 0;
-                this->irLg4Count = 0;
-            }
-        }
-        if (this->irLgPCount > 0)
-        {
-            if (millis() - this->irLgPTime > max)
-            {
-                this->processIr(JMIr::IR_LGP_ID, trace);
-                this->irLgPTime = 0;
-                this->irLgPCount = 0;
-            }
-        }
-        if (this->irAk1Count > 0)
-        {
-            if (millis() - this->irAk1Time > max)
-            {
-                this->processIr(JMIr::IR_AK1_ID, trace);
-                this->irAk1Time = 0;
-                this->irAk1Count = 0;
-            }
-        }
-        if (this->irAk2Count > 0)
-        {
-            if (millis() - this->irAk2Time > max)
-            {
-                this->processIr(JMIr::IR_AK2_ID, trace);
-                this->irAk2Time = 0;
-                this->irAk2Count = 0;
-            }
-        }
-        if (this->irAk3Count > 0)
-        {
-            if (millis() - this->irAk3Time > max)
-            {
-                this->processIr(JMIr::IR_AK3_ID, trace);
-                this->irAk3Time = 0;
-                this->irAk3Count = 0;
-            }
-        }
-        if (this->irAk4Count > 0)
-        {
-            if (millis() - this->irAk4Time > max)
-            {
-                this->processIr(JMIr::IR_AK4_ID, trace);
-                this->irAk4Time = 0;
-                this->irAk4Count = 0;
-            }
-        }
-        if (this->irAkPCount > 0)
-        {
-            if (millis() - this->irAkPTime > max)
-            {
-                this->processIr(JMIr::IR_AKP_ID, trace);
-                this->irAkPTime = 0;
-                this->irAkPCount = 0;
+                this->processIr(this->lastAkId, trace);
+                this->irAkTime = 0;
+                this->irAkCount = 0;
+                this->lastAkId = 250;
             }
         }
     }
@@ -322,19 +204,19 @@ void JMIr::processIr(uint8_t id, bool trace)
 {
     if (id == JMIr::IR_LG1_ID)
     {
-        if (this->irLg1Count == 1)
+        if (this->irLgCount == 1)
         {
             if (trace)
                 Serial.println(F("A1:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irLg1Count == 2)
+        else if (this->irLgCount == 2)
         {
             if (trace)
                 Serial.println(F("A1:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irLg1Count >= 5)
+        else if (this->irLgCount >= 5)
         {
             if (trace)
                 Serial.println(F("A1:      >=5"));
@@ -343,19 +225,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_LG2_ID)
     {
-        if (this->irLg2Count == 1)
+        if (this->irLgCount == 1)
         {
             if (trace)
                 Serial.println(F("A2:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irLg2Count == 2)
+        else if (this->irLgCount == 2)
         {
             if (trace)
                 Serial.println(F("A2:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irLg2Count >= 5)
+        else if (this->irLgCount >= 5)
         {
             if (trace)
                 Serial.println(F("A2:      >=5"));
@@ -364,19 +246,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_LG3_ID)
     {
-        if (this->irLg3Count == 1)
+        if (this->irLgCount == 1)
         {
             if (trace)
                 Serial.println(F("A3:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irLg3Count == 2)
+        else if (this->irLgCount == 2)
         {
             if (trace)
                 Serial.println(F("A3:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irLg3Count >= 5)
+        else if (this->irLgCount >= 5)
         {
             if (trace)
                 Serial.println(F("A3:      >=5"));
@@ -385,19 +267,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_LG4_ID)
     {
-        if (this->irLg4Count == 1)
+        if (this->irLgCount == 1)
         {
             if (trace)
                 Serial.println(F("A4:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_LG, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irLg4Count == 2)
+        else if (this->irLgCount == 2)
         {
             if (trace)
                 Serial.println(F("A4:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_LG, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irLg4Count >= 5)
+        else if (this->irLgCount >= 5)
         {
             if (trace)
                 Serial.println(F("A4:      >=5"));
@@ -406,19 +288,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_LGP_ID)
     {
-        if (this->irLgPCount == 1)
+        if (this->irLgCount == 1)
         {
             if (trace)
                 Serial.println(F("AP:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_TOGGLE_SLEEP_LG, 0);
         }
-        else if (this->irLgPCount == 2)
+        else if (this->irLgCount == 2)
         {
             if (trace)
                 Serial.println(F("AP:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_TURN_LG_OFF, 0);
         }
-        else if (this->irLgPCount == 3)
+        else if (this->irLgCount == 3)
         {
             if (trace)
                 Serial.println(F("AP:      3"));
@@ -427,19 +309,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_AK1_ID)
     {
-        if (this->irAk1Count == 1)
+        if (this->irAkCount == 1)
         {
             if (trace)
                 Serial.println(F("B1:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irAk1Count == 2)
+        else if (this->irAkCount == 2)
         {
             if (trace)
                 Serial.println(F("B1:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_BOX_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irAk1Count >= 5)
+        else if (this->irAkCount >= 5)
         {
             if (trace)
                 Serial.println(F("B1:      >=5"));
@@ -448,19 +330,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_AK2_ID)
     {
-        if (this->irAk2Count == 1)
+        if (this->irAkCount == 1)
         {
             if (trace)
                 Serial.println(F("B2:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irAk2Count == 2)
+        else if (this->irAkCount == 2)
         {
             if (trace)
                 Serial.println(F("B2:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_INDI_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irAk2Count >= 5)
+        else if (this->irAkCount >= 5)
         {
             if (trace)
                 Serial.println(F("B2:      >=5"));
@@ -469,19 +351,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_AK3_ID)
     {
-        if (this->irAk3Count == 1)
+        if (this->irAkCount == 1)
         {
             if (trace)
                 Serial.println(F("B3:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irAk3Count == 2)
+        else if (this->irAkCount == 2)
         {
             if (trace)
                 Serial.println(F("B3:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_PS_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irAk3Count >= 5)
+        else if (this->irAkCount >= 5)
         {
             if (trace)
                 Serial.println(F("B3:      >=5"));
@@ -490,19 +372,19 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_AK4_ID)
     {
-        if (this->irAk4Count == 1)
+        if (this->irAkCount == 1)
         {
             if (trace)
                 Serial.println(F("B4:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_AKARI, JMGlobal::CMD_MODE_FORCE_ON);
         }
-        else if (this->irAk4Count == 2)
+        else if (this->irAkCount == 2)
         {
             if (trace)
                 Serial.println(F("B4:      2"));
             this->commander->doCommand(JMGlobal::DO_CMD_ELSE_TO_AKARI, JMGlobal::CMD_MODE_FORCE_OFF);
         }
-        else if (this->irAk4Count >= 5)
+        else if (this->irAkCount >= 5)
         {
             if (trace)
                 Serial.println(F("B4:      >=5"));
@@ -511,13 +393,13 @@ void JMIr::processIr(uint8_t id, bool trace)
     }
     else if (id == JMIr::IR_AKP_ID)
     {
-        if (this->irAkPCount == 1)
+        if (this->irAkCount == 1)
         {
             if (trace)
                 Serial.println(F("BP:      1"));
             this->commander->doCommand(JMGlobal::DO_CMD_TOGGLE_SLEEP_AKARI, 0);
         }
-        else if (this->irAkPCount == 2)
+        else if (this->irAkCount == 2)
         {
             if (trace)
                 Serial.println(F("BP:      2"));

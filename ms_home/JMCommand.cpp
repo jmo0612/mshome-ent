@@ -1003,9 +1003,9 @@ void JMCommand::initSetup()
 
     //*this->relay8 = {new JMRelay8(0x21), new JMRelay8(0x22), new JMRelay8(0x23)};
 
-    this->relay8[0] = new JMRelay8(0x20);
+    this->relay8[2] = new JMRelay8(0x20);
     this->relay8[1] = new JMRelay8(0x22);
-    this->relay8[2] = new JMRelay8(0x23);
+    this->relay8[0] = new JMRelay8(0x23);
 
     // this->relay8[0] = new JMRelay8(0x22);
 
@@ -1046,6 +1046,38 @@ void JMCommand::initSetup()
     // for fisrtsrun, run the server
     this->serverEvercossBat->run();
     this->serverEvercossCharger->run();
+
+    /*==============================FOR TEST===================================
+    this->remoteA1->acOn();
+    this->remoteA2->acOn();
+    this->remoteA3->acOn();
+    this->remoteA4->acOn();
+    this->remoteB1->acOn();
+    this->remoteB2->acOn();
+    this->remoteB3->acOn();
+    this->remoteB4->acOn();
+
+    this->displayLG->acOn();
+    this->displayAkari->acOn();
+
+    this->hdmiAmpLG->acOn();
+    this->hdmiAmpAkari->acOn();
+    this->hdmiAmpPS->acOn();
+    this->hdmiAmpIndi->acOn();
+
+    this->hdmiMatrix->acOn();
+
+    this->playerBox->acOn();
+    this->playerIndi->acOn();
+    this->playerPS->acOn();
+    this->playerElse->acOn();
+
+    this->serverEvercossBat->acOn();
+    this->serverEvercossCharger->acOn();
+    this->serverNAS->acOn();
+    this->hddDock->acOn();
+    this->speaker->acOn();
+    ==============================END FOR TEST===================================*/
 };
 
 void JMCommand::setRelay8()
